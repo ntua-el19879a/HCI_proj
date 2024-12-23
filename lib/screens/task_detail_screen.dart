@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prioritize_it/models/task.dart';
+import 'package:intl/intl.dart';
 
 class TaskDetailScreen extends StatelessWidget {
   final Task task;
@@ -30,7 +31,8 @@ class TaskDetailScreen extends StatelessWidget {
             const SizedBox(height: 10),
             if (task.dueDate != null)
               Text(
-                'Due Date: ${task.dueDate}',
+                'Due Date: ${DateFormat('yyyy-MM-dd').format(task.dueDate!)}'
+                    '${task.dueDate!.hour != 0 || task.dueDate!.minute != 0 ? ' ' + DateFormat('HH:mm').format(task.dueDate!) : ''}',
                 style: const TextStyle(fontSize: 18),
               ),
             const SizedBox(height: 10),

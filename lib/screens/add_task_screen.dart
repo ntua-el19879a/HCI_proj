@@ -107,10 +107,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   }
 
   void _presentDatePicker() {
+    DateTime initialDate = _selectedDate ?? DateTime.now();
+    if (initialDate.isBefore(DateTime.now())) {
+      initialDate = DateTime.now();
+    }
     showDatePicker(
       context: context,
-      initialDate: _selectedDate ?? DateTime.now(),
-      firstDate: DateTime(2000),
+      initialDate: initialDate,
+      firstDate: DateTime.now(),
       lastDate: DateTime(2100),
     ).then((pickedDate) {
       if (pickedDate == null) return;

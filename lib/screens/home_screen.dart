@@ -49,18 +49,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
   bool _isPastDate() {
     final now = DateTime.now();
-    return _selectedDate.isBefore(DateTime(now.year, now.day, now.month));
+    return _selectedDate.isBefore(DateTime(now.year, now.month, now.day));
   }
 
   @override
   Widget build(BuildContext context) {
     String appBarTitle;
     if (_selectedDate.year == DateTime.now().year &&
-        _selectedDate.day == DateTime.now().day &&
-    _selectedDate.month == DateTime.now().month) {
+        _selectedDate.month == DateTime.now().month &&
+        _selectedDate.day == DateTime.now().day) {
       appBarTitle = "Today";
     } else {
-      appBarTitle = DateFormat('yyyy-dd-MM').format(_selectedDate);
+      appBarTitle = DateFormat('yyyy-MM-dd').format(_selectedDate);
     }
 
     return Scaffold(
