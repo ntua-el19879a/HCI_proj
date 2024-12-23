@@ -22,7 +22,8 @@ class TaskItem extends StatelessWidget {
       ),
       title: Text(task.title),
       subtitle: task.dueDate != null
-          ? Text('Due: ${DateFormat('yyyy-dd-MM HH:mm').format(task.dueDate!)}')
+          ? Text('Due: ${DateFormat('yyyy-dd-MM').format(task.dueDate!)}'
+          '${task.dueDate!.hour != 0 || task.dueDate!.minute != 0 ? ' ' + DateFormat('HH:mm').format(task.dueDate!) : ''}')
           : null,
       trailing: Row(
         mainAxisSize: MainAxisSize.min,

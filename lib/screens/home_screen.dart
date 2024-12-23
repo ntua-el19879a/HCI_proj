@@ -5,25 +5,80 @@ import 'package:provider/provider.dart';
 import 'package:prioritize_it/utils/app_constants.dart';
 import 'package:prioritize_it/screens/add_task_screen.dart';
 import 'package:prioritize_it/screens/task_detail_screen.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
+  final DateTime? selectedDate;
+
+  const HomeScreen({Key? key, this.selectedDate}) : super(key: key);
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  late DateTime _selectedDate;
+
   @override
   void initState() {
     super.initState();
-    // Load tasks when the screen initializes
-    Provider.of<TaskProvider>(context, listen: false).loadTasks();
+    _selectedDate = widget.selectedDate ?? DateTime.now();
+    _loadTasksForSelectedDate();
+  }
+
+  @override
+  void didUpdateWidget(covariant HomeScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.selectedDate != null && widget.selectedDate != _selectedDate) {
+      _selectedDate = widget.selectedDate!;
+      _loadTasksForSelectedDate();
+    }
+  }
+
+  void _loadTasksForSelectedDate() {
+    Provider.of<TaskProvider>(context, listen: false)
+        .loadTasksForDate(_selectedDate);
+  }
+
+  void _changeDate(int days) {
+    setState(() {
+      _selectedDate = _selectedDate.add(Duration(days: days));
+      _loadTasksForSelectedDate();
+    });
+  }
+
+  bool _isPastDate() {
+    final now = DateTime.now();
+    return _selectedDate.isBefore(DateTime(now.year, now.day, now.month));
   }
 
   @override
   Widget build(BuildContext context) {
+    String appBarTitle;
+    if (_selectedDate.year == DateTime.now().year &&
+        _selectedDate.day == DateTime.now().day &&
+    _selectedDate.month == DateTime.now().month) {
+      appBarTitle = "Today";
+    } else {
+      appBarTitle = DateFormat('yyyy-dd-MM').format(_selectedDate);
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppConstants.appTitle),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () => _changeDate(-1),
+            ),
+            Text(appBarTitle),
+            IconButton(
+              icon: Icon(Icons.arrow_forward),
+              onPressed: () => _changeDate(1),
+            ),
+          ],
+        ),
       ),
       drawer: Drawer(
         child: ListView(
@@ -45,14 +100,23 @@ class _HomeScreenState extends State<HomeScreen> {
               leading: const Icon(Icons.home),
               title: const Text('Home'),
               onTap: () {
-                Navigator.pop(context); // Close drawer
+                Navigator.pop(context);
+                Navigator.pushReplacementNamed(context, '/');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.calendar_today),
+              title: const Text('Calendar'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/calendar');
               },
             ),
             ListTile(
               leading: const Icon(Icons.star),
               title: const Text('Streaks'),
               onTap: () {
-                Navigator.pop(context); // Close drawer
+                Navigator.pop(context);
                 Navigator.pushNamed(context, '/streak');
               },
             ),
@@ -60,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
               leading: const Icon(Icons.settings),
               title: const Text('Settings'),
               onTap: () {
-                Navigator.pop(context); // Close drawer
+                Navigator.pop(context);
                 Navigator.pushNamed(context, '/settings');
               },
             ),
@@ -69,10 +133,18 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Consumer<TaskProvider>(
         builder: (context, taskProvider, child) {
+          final selectedTasks = taskProvider.tasks
+              .where((task) => task.dueDate != null)
+              .where((task) =>
+          task.dueDate!.year == _selectedDate.year &&
+              task.dueDate!.month == _selectedDate.month &&
+              task.dueDate!.day == _selectedDate.day)
+              .toList();
+
           final currentTasks =
-          taskProvider.tasks.where((task) => !task.isCompleted).toList();
+          selectedTasks.where((task) => !task.isCompleted).toList();
           final completedTasks =
-          taskProvider.tasks.where((task) => task.isCompleted).toList();
+          selectedTasks.where((task) => task.isCompleted).toList();
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,9 +223,17 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: _isPastDate()
+          ? null
+          : FloatingActionButton(
         onPressed: () {
-          Navigator.pushNamed(context, '/add_task');
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  AddTaskScreen(initialDate: _selectedDate),
+            ),
+          );
         },
         child: const Icon(Icons.add),
       ),

@@ -9,8 +9,10 @@ import 'package:intl/intl.dart';
 
 class AddTaskScreen extends StatefulWidget {
   final Task? task;
+  final DateTime? initialDate;
 
-  const AddTaskScreen({Key? key, this.task}) : super(key: key);
+  const AddTaskScreen({Key? key, this.task, this.initialDate})
+      : super(key: key);
 
   @override
   _AddTaskScreenState createState() => _AddTaskScreenState();
@@ -27,8 +29,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   @override
   void initState() {
     super.initState();
+    _selectedDate = widget.initialDate;
     if (widget.task != null) {
-      // Editing an existing task
       _titleController.text = widget.task!.title;
       _descriptionController.text = widget.task!.description ?? '';
       _selectedDate = widget.task!.dueDate;
@@ -48,26 +50,25 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
   void _submitData() async {
     if (_formKey.currentState!.validate()) {
-      // Combine date and time
       DateTime? combinedDateTime;
-      if (_selectedDate != null && _selectedTime != null) {
+      if (_selectedDate != null) {
         combinedDateTime = DateTime(
           _selectedDate!.year,
           _selectedDate!.month,
           _selectedDate!.day,
-          _selectedTime!.hour,
-          _selectedTime!.minute,
         );
+        if (_selectedTime != null) {
+          combinedDateTime = combinedDateTime.add(
+              Duration(hours: _selectedTime!.hour, minutes: _selectedTime!.minute));
+        }
       }
 
-      // Get location if user has enabled it
       Position? position = await GpsService.getCurrentLocation();
       if (position != null) {
         _locationString = "${position.latitude}, ${position.longitude}";
       }
 
       if (widget.task == null) {
-        // Adding a new task
         final newTask = Task(
           title: _titleController.text,
           description: _descriptionController.text,
@@ -78,7 +79,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
         Provider.of<TaskProvider>(context, listen: false).addTask(newTask);
 
-        // Show notification
         try {
           await NotificationService.showNotification(
             id: newTask.id ?? 0,
@@ -89,7 +89,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           print("Error showing notification: $e");
         }
       } else {
-        // Updating an existing task
         final updatedTask = Task(
           id: widget.task!.id,
           title: _titleController.text,
@@ -111,14 +110,13 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     showDatePicker(
       context: context,
       initialDate: _selectedDate ?? DateTime.now(),
-      firstDate: DateTime.now(),
+      firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     ).then((pickedDate) {
       if (pickedDate == null) return;
       setState(() {
         _selectedDate = pickedDate;
       });
-      _presentTimePicker();
     });
   }
 
@@ -162,14 +160,13 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 maxLines: 3,
               ),
               const SizedBox(height: 20),
-              // Date and Time Row
               Row(
                 children: [
                   Expanded(
                     child: Text(
                       _selectedDate == null
                           ? 'No Due Date'
-                          : 'Due Date: ${DateFormat('yyyy-dd-MM').format(_selectedDate!)}',
+                          : 'Due Date: ${DateFormat('yyyy-MM-dd').format(_selectedDate!)}',
                     ),
                   ),
                   TextButton(

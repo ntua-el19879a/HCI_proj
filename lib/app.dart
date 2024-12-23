@@ -3,6 +3,7 @@ import 'package:prioritize_it/screens/home_screen.dart';
 import 'package:prioritize_it/screens/add_task_screen.dart';
 import 'package:prioritize_it/screens/settings_screen.dart';
 import 'package:prioritize_it/screens/streak_screen.dart';
+import 'package:prioritize_it/screens/calendar_screen.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -22,6 +23,7 @@ class App extends StatelessWidget {
         '/add_task': (context) => AddTaskScreen(),
         '/settings': (context) => SettingsScreen(),
         '/streak': (context) => StreakScreen(),
+        '/calendar': (context) => CalendarScreen(),
         // ... other routes
       },
     );

@@ -4,8 +4,8 @@ class Task {
   String? description;
   DateTime? dueDate;
   bool isCompleted;
-  String? location; // Store location as a string or lat/long
-  int? priority; // Optional: for task prioritization
+  String? location;
+  int? priority;
 
   Task({
     this.id,
@@ -17,7 +17,6 @@ class Task {
     this.priority,
   });
 
-  // Convert a Task object into a Map for database storage
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -30,7 +29,6 @@ class Task {
     };
   }
 
-  // Create a Task object from a database Map
   factory Task.fromMap(Map<String, dynamic> map) {
     return Task(
       id: map['id'],

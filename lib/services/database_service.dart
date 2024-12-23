@@ -2,13 +2,15 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:prioritize_it/models/task.dart';
 import 'package:prioritize_it/models/user.dart';
+import 'package:intl/intl.dart';
 
 class DatabaseService {
   static Database? _database;
   static const String _databaseName = 'prioritize_it.db';
   static const int _databaseVersion = 1;
+
+  // Tables
   static const String _tasksTable = 'tasks';
-// Tables
   static const String _userTable = 'user';
 
   // Task Table Columns
@@ -27,8 +29,8 @@ class DatabaseService {
   static const String _userLongestStreakColumn = 'longestStreak';
   static const String _userPointsColumn = 'points';
   static const String _userCompletedTasksColumn = 'completedTasks';
-  // Initialize the database
 
+  // Initialize the database
   static Future<void> initialize() async {
     if (_database != null) return;
 
@@ -42,19 +44,22 @@ class DatabaseService {
     );
   }
 
-  // Create the tasks table
+  // Create the tables
   static Future<void> _onCreate(Database db, int version) async {
+    // Create Tasks Table
     await db.execute('''
       CREATE TABLE $_tasksTable (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT NOT NULL,
-        description TEXT,
-        dueDate TEXT,
-        isCompleted INTEGER NOT NULL,
-        location TEXT,
-        priority INTEGER
+        $_taskIdColumn INTEGER PRIMARY KEY AUTOINCREMENT,
+        $_taskTitleColumn TEXT NOT NULL,
+        $_taskDescriptionColumn TEXT,
+        $_taskDueDateColumn TEXT,
+        $_taskIsCompletedColumn INTEGER NOT NULL,
+        $_taskLocationColumn TEXT,
+        $_taskPriorityColumn INTEGER
       )
     ''');
+
+    // Create User Table
     await db.execute('''
       CREATE TABLE $_userTable (
         $_userIdColumn INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -66,6 +71,10 @@ class DatabaseService {
       )
     ''');
   }
+
+  // --- User Table Methods ---
+
+  // Get the user
   static Future<User?> getUser() async {
     final List<Map<String, dynamic>> maps = await _database!.query(_userTable);
 
@@ -92,10 +101,7 @@ class DatabaseService {
     );
   }
 
-  // Insert a task
-  static Future<int> insertTask(Task task) async {
-    return await _database!.insert(_tasksTable, task.toMap());
-  }
+  // --- Task Table Methods ---
 
   // Get all tasks
   static Future<List<Task>> getTasks() async {
@@ -105,12 +111,35 @@ class DatabaseService {
     });
   }
 
+  // Get tasks for a specific date
+  static Future<List<Task>> getTasksForDate(DateTime date) async {
+    final startDate =
+    DateTime(date.year, date.month, date.day, 0, 0, 0).toIso8601String();
+    final endDate = DateTime(date.year, date.month, date.day, 23, 59, 59)
+        .toIso8601String();
+
+    final List<Map<String, dynamic>> maps = await _database!.query(
+      _tasksTable,
+      where: '$_taskDueDateColumn BETWEEN ? AND ?',
+      whereArgs: [startDate, endDate],
+    );
+
+    return List.generate(maps.length, (i) {
+      return Task.fromMap(maps[i]);
+    });
+  }
+
+  // Insert a task
+  static Future<int> insertTask(Task task) async {
+    return await _database!.insert(_tasksTable, task.toMap());
+  }
+
   // Update a task
   static Future<int> updateTask(Task task) async {
     return await _database!.update(
       _tasksTable,
       task.toMap(),
-      where: 'id = ?',
+      where: '$_taskIdColumn = ?',
       whereArgs: [task.id],
     );
   }
@@ -119,7 +148,7 @@ class DatabaseService {
   static Future<int> deleteTask(int id) async {
     return await _database!.delete(
       _tasksTable,
-      where: 'id = ?',
+      where: '$_taskIdColumn = ?',
       whereArgs: [id],
     );
   }
