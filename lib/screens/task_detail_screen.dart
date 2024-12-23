@@ -31,7 +31,7 @@ class TaskDetailScreen extends StatelessWidget {
             const SizedBox(height: 10),
             if (task.dueDate != null)
               Text(
-                'Due Date: ${DateFormat('yyyy-MM-dd').format(task.dueDate!)}'
+                'Due Date: ${DateFormat('yyyy-dd-MM').format(task.dueDate!)}'
                     '${task.dueDate!.hour != 0 || task.dueDate!.minute != 0 ? ' ' + DateFormat('HH:mm').format(task.dueDate!) : ''}',
                 style: const TextStyle(fontSize: 18),
               ),

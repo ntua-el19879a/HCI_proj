@@ -56,11 +56,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     String appBarTitle;
     if (_selectedDate.year == DateTime.now().year &&
-        _selectedDate.month == DateTime.now().month &&
-        _selectedDate.day == DateTime.now().day) {
+        _selectedDate.day == DateTime.now().day &&
+        _selectedDate.month == DateTime.now().month) {
       appBarTitle = "Today";
     } else {
-      appBarTitle = DateFormat('yyyy-MM-dd').format(_selectedDate);
+      appBarTitle = DateFormat('yyyy-dd-MM').format(_selectedDate);
     }
 
     return Scaffold(
@@ -68,15 +68,32 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: () => _changeDate(-1),
+            SizedBox(width: 40),
+            Expanded(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Prioritize It', style: TextStyle(fontSize: 15)),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.arrow_back_ios),
+                          onPressed: () => _changeDate(-1),
+                        ),
+                        Text(appBarTitle, style: TextStyle(fontSize: 20)),
+                        IconButton(
+                          icon: Icon(Icons.arrow_forward_ios),
+                          onPressed: () => _changeDate(1),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
-            Text(appBarTitle),
-            IconButton(
-              icon: Icon(Icons.arrow_forward),
-              onPressed: () => _changeDate(1),
-            ),
+            SizedBox(width: 40),
           ],
         ),
       ),
