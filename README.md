@@ -1,6 +1,7 @@
 # prioritize_it
 
 A new Flutter project.
+All the important code is in the lib/ folder in the Master branch
 
 ## Getting Started
 
