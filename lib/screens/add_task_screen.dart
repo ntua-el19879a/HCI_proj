@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:prioritize_it/models/task.dart';
 import 'package:prioritize_it/providers/task_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:prioritize_it/services/gps_service.dart';
+import 'package:prioritize_it/services/notification_service.dart';
 
 class AddTaskScreen extends StatefulWidget {
-  const AddTaskScreen({Key? key}) : super(key: key);
+  final Task? task;
+
+  const AddTaskScreen({Key? key, this.task}) : super(key: key);
 
   @override
   _AddTaskScreenState createState() => _AddTaskScreenState();
@@ -15,6 +20,19 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   DateTime? _selectedDate;
+  String? _locationString;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.task != null) {
+      // Editing an existing task
+      _titleController.text = widget.task!.title;
+      _descriptionController.text = widget.task!.description ?? '';
+      _selectedDate = widget.task!.dueDate;
+      _locationString = widget.task!.location;
+    }
+  }
 
   @override
   void dispose() {
@@ -23,17 +41,52 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     super.dispose();
   }
 
-  void _submitData() {
+  void _submitData() async {
     if (_formKey.currentState!.validate()) {
-      final newTask = Task(
-        title: _titleController.text,
-        description: _descriptionController.text,
-        dueDate: _selectedDate,
-        isCompleted: false,
-      );
+      // Get location if user has enabled it
+      Position? position = await GpsService.getCurrentLocation();
+      if (position != null) {
+        _locationString = "${position.latitude}, ${position.longitude}";
+      }
 
-      Provider.of<TaskProvider>(context, listen: false).addTask(newTask);
-      Navigator.of(context).pop(); // Go back to the previous screen
+      if (widget.task == null) {
+        // Adding a new task
+        final newTask = Task(
+          title: _titleController.text,
+          description: _descriptionController.text,
+          dueDate: _selectedDate,
+          isCompleted: false,
+          location: _locationString,
+        );
+
+        Provider.of<TaskProvider>(context, listen: false).addTask(newTask);
+
+        // Show notification
+        try {
+          await NotificationService.showNotification(
+            id: newTask.id ?? 0,
+            title: 'Task Added',
+            body: 'You added: ${newTask.title}',
+          );
+        } catch (e) {
+          print("Error showing notification: $e");
+          // Handle the error, e.g., show a message to the user
+        }
+      } else {
+        // Updating an existing task
+        final updatedTask = Task(
+          id: widget.task!.id,
+          title: _titleController.text,
+          description: _descriptionController.text,
+          dueDate: _selectedDate,
+          isCompleted: widget.task!.isCompleted,
+          location: _locationString,
+        );
+
+        Provider.of<TaskProvider>(context, listen: false).updateTask(updatedTask);
+      }
+
+      Navigator.of(context).pop();
     }
   }
 
@@ -55,7 +108,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Task'),
+        title: Text(widget.task == null ? 'Add Task' : 'Edit Task'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -97,7 +150,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _submitData,
-                child: const Text('Add Task'),
+                child: Text(widget.task == null ? 'Add Task' : 'Save Changes'),
               ),
             ],
           ),
