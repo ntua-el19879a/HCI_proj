@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:prioritize_it/models/task.dart';
 import 'package:prioritize_it/providers/task_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 class TaskItem extends StatelessWidget {
   final Task task;
@@ -20,7 +21,9 @@ class TaskItem extends StatelessWidget {
         },
       ),
       title: Text(task.title),
-      subtitle: task.dueDate != null ? Text('Due: ${task.dueDate}') : null,
+      subtitle: task.dueDate != null
+          ? Text('Due: ${DateFormat('yyyy-dd-MM HH:mm').format(task.dueDate!)}')
+          : null,
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

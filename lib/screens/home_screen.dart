@@ -69,32 +69,85 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Consumer<TaskProvider>(
         builder: (context, taskProvider, child) {
-          return ListView.builder(
-            itemCount: taskProvider.tasks.length,
-            itemBuilder: (context, index) {
-              final task = taskProvider.tasks[index];
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => TaskDetailScreen(task: task),
-                    ),
-                  );
-                },
-                child: TaskItem(
-                  task: task,
-                  onEdit: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AddTaskScreen(task: task),
+          final currentTasks =
+          taskProvider.tasks.where((task) => !task.isCompleted).toList();
+          final completedTasks =
+          taskProvider.tasks.where((task) => task.isCompleted).toList();
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text('Current Tasks',
+                    style:
+                    TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: currentTasks.length,
+                  itemBuilder: (context, index) {
+                    final task = currentTasks[index];
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TaskDetailScreen(task: task),
+                          ),
+                        );
+                      },
+                      child: TaskItem(
+                        task: task,
+                        onEdit: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AddTaskScreen(task: task),
+                            ),
+                          );
+                        },
                       ),
                     );
                   },
                 ),
-              );
-            },
+              ),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text('Completed Tasks',
+                    style:
+                    TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: completedTasks.length,
+                  itemBuilder: (context, index) {
+                    final task = completedTasks[index];
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TaskDetailScreen(task: task),
+                          ),
+                        );
+                      },
+                      child: TaskItem(
+                        task: task,
+                        onEdit: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AddTaskScreen(task: task),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
           );
         },
       ),
@@ -104,7 +157,6 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         child: const Icon(Icons.add),
       ),
-      // ... (Drawer or other navigation elements)
     );
   }
 }

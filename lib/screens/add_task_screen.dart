@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:prioritize_it/services/gps_service.dart';
 import 'package:prioritize_it/services/notification_service.dart';
+import 'package:intl/intl.dart';
 
 class AddTaskScreen extends StatefulWidget {
   final Task? task;
@@ -20,6 +21,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   DateTime? _selectedDate;
+  TimeOfDay? _selectedTime;
   String? _locationString;
 
   @override
@@ -30,6 +32,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       _titleController.text = widget.task!.title;
       _descriptionController.text = widget.task!.description ?? '';
       _selectedDate = widget.task!.dueDate;
+      _selectedTime = widget.task!.dueDate != null
+          ? TimeOfDay.fromDateTime(widget.task!.dueDate!)
+          : null;
       _locationString = widget.task!.location;
     }
   }
@@ -43,6 +48,18 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
   void _submitData() async {
     if (_formKey.currentState!.validate()) {
+      // Combine date and time
+      DateTime? combinedDateTime;
+      if (_selectedDate != null && _selectedTime != null) {
+        combinedDateTime = DateTime(
+          _selectedDate!.year,
+          _selectedDate!.month,
+          _selectedDate!.day,
+          _selectedTime!.hour,
+          _selectedTime!.minute,
+        );
+      }
+
       // Get location if user has enabled it
       Position? position = await GpsService.getCurrentLocation();
       if (position != null) {
@@ -54,7 +71,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         final newTask = Task(
           title: _titleController.text,
           description: _descriptionController.text,
-          dueDate: _selectedDate,
+          dueDate: combinedDateTime,
           isCompleted: false,
           location: _locationString,
         );
@@ -70,7 +87,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           );
         } catch (e) {
           print("Error showing notification: $e");
-          // Handle the error, e.g., show a message to the user
         }
       } else {
         // Updating an existing task
@@ -78,12 +94,13 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           id: widget.task!.id,
           title: _titleController.text,
           description: _descriptionController.text,
-          dueDate: _selectedDate,
+          dueDate: combinedDateTime,
           isCompleted: widget.task!.isCompleted,
           location: _locationString,
         );
 
-        Provider.of<TaskProvider>(context, listen: false).updateTask(updatedTask);
+        Provider.of<TaskProvider>(context, listen: false)
+            .updateTask(updatedTask);
       }
 
       Navigator.of(context).pop();
@@ -93,13 +110,26 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   void _presentDatePicker() {
     showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate: _selectedDate ?? DateTime.now(),
       firstDate: DateTime.now(),
       lastDate: DateTime(2100),
     ).then((pickedDate) {
       if (pickedDate == null) return;
       setState(() {
         _selectedDate = pickedDate;
+      });
+      _presentTimePicker();
+    });
+  }
+
+  void _presentTimePicker() {
+    showTimePicker(
+      context: context,
+      initialTime: _selectedTime ?? TimeOfDay.now(),
+    ).then((pickedTime) {
+      if (pickedTime == null) return;
+      setState(() {
+        _selectedTime = pickedTime;
       });
     });
   }
@@ -132,18 +162,34 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 maxLines: 3,
               ),
               const SizedBox(height: 20),
+              // Date and Time Row
               Row(
                 children: [
                   Expanded(
                     child: Text(
                       _selectedDate == null
-                          ? 'No Date Chosen'
-                          : 'Due Date: ${_selectedDate.toString()}',
+                          ? 'No Due Date'
+                          : 'Due Date: ${DateFormat('yyyy-dd-MM').format(_selectedDate!)}',
                     ),
                   ),
                   TextButton(
                     onPressed: _presentDatePicker,
                     child: const Text('Choose Date'),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _selectedTime == null
+                          ? 'No Time Set'
+                          : 'Time: ${DateFormat('HH:mm').format(DateTime(0, 0, 0, _selectedTime!.hour, _selectedTime!.minute))}',
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: _presentTimePicker,
+                    child: const Text('Choose Time'),
                   ),
                 ],
               ),
