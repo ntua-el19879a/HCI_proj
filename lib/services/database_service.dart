@@ -4,6 +4,8 @@ import 'package:prioritize_it/models/task.dart';
 import 'package:prioritize_it/models/user.dart';
 import 'package:intl/intl.dart';
 
+// firebase anti gia sqlite
+
 class DatabaseService {
   static Database? _database;
   static const String _databaseName = 'prioritize_it.db';
