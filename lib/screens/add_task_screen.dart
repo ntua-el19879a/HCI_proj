@@ -163,7 +163,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 TextFormField(
                   controller: _descriptionController,
                   decoration: const InputDecoration(labelText: 'Description'),
-                  maxLines: 3,
+                  maxLines: 1,
                 ),
                 const SizedBox(height: 20),
                 Row(
