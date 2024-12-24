@@ -6,6 +6,8 @@ import 'package:prioritize_it/utils/app_constants.dart';
 import 'package:prioritize_it/screens/add_task_screen.dart';
 import 'package:prioritize_it/screens/task_detail_screen.dart';
 import 'package:intl/intl.dart';
+import 'package:prioritize_it/screens/themes_screen.dart';
+
 
 class HomeScreen extends StatefulWidget {
   final DateTime? selectedDate;
@@ -128,6 +130,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 Navigator.pop(context);
                 Navigator.pushNamed(context, '/calendar');
               },
+            ),
+            ListTile(
+              leading: const Icon(Icons.color_lens), // Or any suitable icon
+              title: const Text('Themes'),
+              onTap: () {
+                Navigator.pop(context); // Close drawer
+                Navigator.pushNamed(context, '/themes');
+                },
             ),
             ListTile(
               leading: const Icon(Icons.star),

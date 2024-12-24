@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:prioritize_it/providers/theme_provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -8,8 +10,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _isDarkModeEnabled = false; // Placeholder for dark mode setting
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,14 +20,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            SwitchListTile(
-              title: const Text('Dark Mode'),
-              value: _isDarkModeEnabled,
-              onChanged: (value) {
-                setState(() {
-                  _isDarkModeEnabled = value;
-                  // TODO: Implement logic to change the app's theme
-                });
+            Consumer<ThemeProvider>(
+              builder: (context, themeProvider, child) {
+                return SwitchListTile(
+                  title: const Text('Dark Mode'),
+                  value: themeProvider.isDarkMode,
+                  onChanged: (value) {
+                    themeProvider.toggleTheme();
+                  },
+                );
               },
             ),
             // ... Add other settings here

@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:prioritize_it/services/gps_service.dart';
 import 'package:prioritize_it/services/notification_service.dart';
 import 'package:intl/intl.dart';
+import 'package:prioritize_it/providers/user_provider.dart';
 
 class AddTaskScreen extends StatefulWidget {
   final Task? task;
@@ -78,7 +79,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         );
 
         Provider.of<TaskProvider>(context, listen: false).addTask(newTask);
-
+        Provider.of<UserProvider>(context, listen: false).handleTaskAdded();
         try {
           await NotificationService.showNotification(
             id: newTask.id ?? 0,
@@ -162,16 +163,16 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 TextFormField(
                   controller: _descriptionController,
                   decoration: const InputDecoration(labelText: 'Description'),
-                  maxLines: 1,
+                  maxLines: 3,
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 20),
                 Row(
                   children: [
                     Expanded(
                       child: Text(
                         _selectedDate == null
                             ? 'No Due Date'
-                            : 'Due Date: ${DateFormat('yyyy-dd-MM').format(_selectedDate!)}',
+                            : 'Due Date: ${DateFormat('yyyy-MM-dd').format(_selectedDate!)}',
                       ),
                     ),
                     TextButton(

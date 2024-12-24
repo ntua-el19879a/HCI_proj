@@ -1,45 +1,91 @@
 import 'package:flutter/material.dart';
 import 'package:prioritize_it/models/user.dart';
 import 'package:prioritize_it/services/database_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 
 class UserProvider with ChangeNotifier {
   User? _user;
-
   User? get user => _user;
 
-  // Load user data from the database
+  bool get isLoading => _isLoading;
+  bool _isLoading = false;
+
   Future<void> loadUser() async {
+    if (_isLoading) return;
+
+    _isLoading = true;
+    notifyListeners();
+
     _user = await DatabaseService.getUser();
     if (_user == null) {
-      // If no user exists, create a default one and save it
       _user = User();
       await DatabaseService.insertUser(_user!);
     }
+    await _checkStreak(); // Now awaited
+
+    _isLoading = false;
     notifyListeners();
   }
 
-  // Update user data (streak, points, etc.)
   Future<void> updateUser(User updatedUser) async {
     await DatabaseService.updateUser(updatedUser);
-    await loadUser(); // Reload user data after update
+    _user = updatedUser; // Update local user object
+    notifyListeners(); // Notify after updating
   }
 
-  // Example method to handle task completion (update user data)
   Future<void> handleTaskCompletion(int pointsAwarded) async {
     if (_user != null) {
-      _user!.incrementStreak();
       _user!.addPoints(pointsAwarded);
       _user!.incrementCompletedTasks();
-      await updateUser(_user!);
+      await _updateStreak(); // Update streak data
+      await DatabaseService.updateUser(_user!); // Update in database
+      notifyListeners(); // Notify after updating
     }
   }
 
-  // Example method to handle task failure/missed deadline (update user data)
   Future<void> handleTaskFailure(int pointsDeducted) async {
     if (_user != null) {
-      _user!.resetStreak();
       _user!.deductPoints(pointsDeducted);
-      await updateUser(_user!);
+      await DatabaseService.updateUser(_user!); // Update in database
+      notifyListeners(); // Notify after updating
+    }
+  }
+
+  Future<void> _checkStreak() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? lastActivityDate = prefs.getString('lastActivityDate');
+
+    if (lastActivityDate != null) {
+      DateTime lastDate = DateTime.parse(lastActivityDate);
+      DateTime yesterday = DateTime.now().subtract(Duration(days: 1));
+      if (DateFormat('yyyy-dd-MM').format(lastDate) ==
+          DateFormat('yyyy-dd-MM').format(yesterday)) {
+        _user!.incrementStreak();
+      } else if (DateFormat('yyyy-dd-MM').format(lastDate) !=
+          DateFormat('yyyy-dd-MM').format(DateTime.now())) {
+        _user!.resetStreak();
+      }
+    } else {
+      _user!.resetStreak();
+    }
+
+    await prefs.setString(
+        'lastActivityDate', DateFormat('yyyy-dd-MM').format(DateTime.now()));
+  }
+
+  Future<void> _updateStreak() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+        'lastActivityDate', DateFormat('yyyy-dd-MM').format(DateTime.now()));
+    await _checkStreak(); // Update streak data after updating activity date
+  }
+
+  Future<void> handleTaskAdded() async {
+    if (_user != null) {
+      await _updateStreak();
+      await DatabaseService.updateUser(_user!); // Update in database
+      notifyListeners(); // Notify after updating
     }
   }
 }
