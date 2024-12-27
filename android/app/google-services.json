@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "188432300219",
+    "project_id": "prioritize-it-6c0ed",
+    "storage_bucket": "prioritize-it-6c0ed.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:188432300219:android:b6a12272cfbb23183cd19e",
+        "android_client_info": {
+          "package_name": "com.hci.p"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCe50GDUswLbNclLfSkD1c051CLdGFw_Oo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
