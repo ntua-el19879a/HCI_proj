@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:prioritize_it/providers/task_provider.dart';
 import 'package:prioritize_it/providers/user_provider.dart';
+import 'package:prioritize_it/services/database_service.dart';
 // import 'package:prioritize_it/services/database_service.dart';
 import 'package:prioritize_it/services/notification_service.dart';
 import 'package:provider/provider.dart';
@@ -11,12 +12,14 @@ import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final DatabaseService db;
 
   // Initialize services with error handling
   try {
     await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform);
     // await DatabaseService.initialize();
+    db = DatabaseService();
     debugPrint('Database successfully initialized');
   } catch (e) {
     debugPrint("Error initializing database: $e");
@@ -38,9 +41,9 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => TaskProvider()),
+        ChangeNotifierProvider(create: (context) => TaskProvider(db)),
         ChangeNotifierProvider(create: (context) {
-          var userProvider = UserProvider();
+          var userProvider = UserProvider(db);
           userProvider.loadUser(); // Load user data immediately
           return userProvider;
         }),

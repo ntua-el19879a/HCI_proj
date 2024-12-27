@@ -1,5 +1,5 @@
 class User {
-  int? id;
+  String? id;
   String? name; // Optional: You can make the user provide a name
   int currentStreak;
   int longestStreak;

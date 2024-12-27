@@ -1,35 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:prioritize_it/models/task.dart';
 import 'package:prioritize_it/services/database_service.dart';
-import 'package:intl/intl.dart';
 
 class TaskProvider with ChangeNotifier {
   List<Task> _tasks = [];
+  final DatabaseService dbService;
+
+  TaskProvider(this.dbService); // Constructor to pass the DatabaseService
 
   List<Task> get tasks => _tasks;
-
   Future<void> loadTasks() async {
-    _tasks = await DatabaseService.getTasks();
+    _tasks = await dbService.getTasks('');
     notifyListeners();
   }
 
   Future<void> loadTasksForDate(DateTime date) async {
-    _tasks = await DatabaseService.getTasksForDate(date);
+    _tasks = await dbService.getTasksForDate('', date);
     notifyListeners();
   }
 
   Future<void> addTask(Task task) async {
-    await DatabaseService.insertTask(task);
+    await dbService.insertTask(task);
     await loadTasks();
   }
 
   Future<void> updateTask(Task task) async {
-    await DatabaseService.updateTask(task);
+    await dbService.updateTask(task);
     await loadTasks();
   }
 
-  Future<void> deleteTask(int taskId) async {
-    await DatabaseService.deleteTask(taskId);
+  Future<void> deleteTask(String taskId) async {
+    await dbService.deleteTask(taskId);
     await loadTasks();
   }
 

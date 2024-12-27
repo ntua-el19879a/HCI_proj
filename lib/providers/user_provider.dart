@@ -6,6 +6,10 @@ import 'package:intl/intl.dart';
 
 class UserProvider with ChangeNotifier {
   User? _user;
+  final DatabaseService dbService;
+
+  UserProvider(this.dbService);
+
   User? get user => _user;
 
   bool get isLoading => _isLoading;
@@ -17,10 +21,10 @@ class UserProvider with ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    _user = await DatabaseService.getUser();
+    _user = await dbService.getUser('');
     if (_user == null) {
       _user = User();
-      await DatabaseService.insertUser(_user!);
+      await dbService.insertUser(_user!);
     }
     await _checkStreak(); // Now awaited
 
@@ -29,7 +33,7 @@ class UserProvider with ChangeNotifier {
   }
 
   Future<void> updateUser(User updatedUser) async {
-    await DatabaseService.updateUser(updatedUser);
+    await dbService.updateUser(updatedUser);
     _user = updatedUser; // Update local user object
     notifyListeners(); // Notify after updating
   }
@@ -39,7 +43,7 @@ class UserProvider with ChangeNotifier {
       _user!.addPoints(pointsAwarded);
       _user!.incrementCompletedTasks();
       await _updateStreak(); // Update streak data
-      await DatabaseService.updateUser(_user!); // Update in database
+      await dbService.updateUser(_user!); // Update in database
       notifyListeners(); // Notify after updating
     }
   }
@@ -47,7 +51,7 @@ class UserProvider with ChangeNotifier {
   Future<void> handleTaskFailure(int pointsDeducted) async {
     if (_user != null) {
       _user!.deductPoints(pointsDeducted);
-      await DatabaseService.updateUser(_user!); // Update in database
+      await dbService.updateUser(_user!); // Update in database
       notifyListeners(); // Notify after updating
     }
   }
@@ -84,7 +88,7 @@ class UserProvider with ChangeNotifier {
   Future<void> handleTaskAdded() async {
     if (_user != null) {
       await _updateStreak();
-      await DatabaseService.updateUser(_user!); // Update in database
+      await dbService.updateUser(_user!); // Update in database
       notifyListeners(); // Notify after updating
     }
   }
