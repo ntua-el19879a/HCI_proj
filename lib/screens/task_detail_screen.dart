@@ -29,10 +29,10 @@ class TaskDetailScreen extends StatelessWidget {
                 style: const TextStyle(fontSize: 18),
               ),
             const SizedBox(height: 10),
-            if (task.dueDate != null)
+            if (task.date != null)
               Text(
-                'Due Date: ${DateFormat('yyyy-dd-MM').format(task.dueDate!)}'
-                    '${task.dueDate!.hour != 0 || task.dueDate!.minute != 0 ? ' ' + DateFormat('HH:mm').format(task.dueDate!) : ''}',
+                'Due Date: ${DateFormat('yyyy-dd-MM').format(task.date!)}'
+                '${task.date!.hour != 0 || task.date!.minute != 0 ? ' ' + DateFormat('HH:mm').format(task.date!) : ''}',
                 style: const TextStyle(fontSize: 18),
               ),
             const SizedBox(height: 10),

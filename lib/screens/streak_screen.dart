@@ -19,7 +19,6 @@ class StreakScreen extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
 
-
           // Check if user data is loaded and not null
           if (user == null) {
             return const Center(

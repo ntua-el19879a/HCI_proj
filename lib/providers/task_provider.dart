@@ -9,32 +9,28 @@ class TaskProvider with ChangeNotifier {
   TaskProvider(this.dbService); // Constructor to pass the DatabaseService
 
   List<Task> get tasks => _tasks;
-  Future<void> loadTasks() async {
-    _tasks = await dbService.getTasks('');
-    notifyListeners();
-  }
 
-  Future<void> loadTasksForDate(DateTime date) async {
-    _tasks = await dbService.getTasksForDate('', date);
+  Future<void> loadTasksForDate(String userId, DateTime date) async {
+    _tasks = await dbService.getTasksForDate(userId, date);
     notifyListeners();
   }
 
   Future<void> addTask(Task task) async {
     await dbService.insertTask(task);
-    await loadTasks();
+    await loadTasksForDate(task.userId, task.date!);
   }
 
   Future<void> updateTask(Task task) async {
     await dbService.updateTask(task);
-    await loadTasks();
+    await loadTasksForDate(task.userId, task.date!);
   }
 
-  Future<void> deleteTask(String taskId) async {
-    await dbService.deleteTask(taskId);
-    await loadTasks();
+  Future<void> deleteTask(Task task) async {
+    await dbService.deleteTask(task.id!);
+    await loadTasksForDate(task.userId, task.date!);
   }
 
-  Future<void> toggleTaskCompletion(int taskId) async {
+  Future<void> toggleTaskCompletion(String taskId) async {
     Task task = _tasks.firstWhere((t) => t.id == taskId);
     task.isCompleted = !task.isCompleted;
     await updateTask(task);

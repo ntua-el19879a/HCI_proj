@@ -1,16 +1,20 @@
 class User {
-  String? id;
-  String? name; // Optional: You can make the user provide a name
+  String id;
+  String name; // Optional: You can make the user provide a name
   int currentStreak;
   int longestStreak;
   int points;
+  String password;
+  String email;
   int completedTasks;
   // You might want to add a history of completed tasks
   // List<DateTime> completedTaskDates;
 
   User({
-    this.id,
-    this.name,
+    required this.id,
+    required this.name,
+    required this.email,
+    required this.password,
     this.currentStreak = 0,
     this.longestStreak = 0,
     this.points = 0,
@@ -23,6 +27,8 @@ class User {
     return {
       'id': id,
       'name': name,
+      'email': email,
+      'password': password,
       'currentStreak': currentStreak,
       'longestStreak': longestStreak,
       'points': points,
@@ -36,6 +42,8 @@ class User {
     return User(
       id: map['id'],
       name: map['name'],
+      password: map['password'],
+      email: map['email'],
       currentStreak: map['currentStreak'],
       longestStreak: map['longestStreak'],
       points: map['points'],

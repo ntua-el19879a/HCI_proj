@@ -38,36 +38,28 @@ class DatabaseService {
 
   // --- Task Methods ---
 
-  // Get all tasks for a user
-  Future<List<Task>> getTasks(String userId) async {
-    final querySnapshot = await _database
-        .collection(_tasksCollection)
-        .where('userId', isEqualTo: userId)
-        .get();
-
-    return querySnapshot.docs.map((doc) => Task.fromMap(doc.data())).toList();
-  }
-
   // Get tasks for a specific date
   Future<List<Task>> getTasksForDate(String userId, DateTime date) async {
-    final startDate =
+    final formattedDate =
         DateTime(date.year, date.month, date.day, 0, 0, 0).toIso8601String();
-    final endDate =
-        DateTime(date.year, date.month, date.day, 23, 59, 59).toIso8601String();
 
     final querySnapshot = await _database
         .collection(_tasksCollection)
         .where('userId', isEqualTo: userId)
-        .where('dueDate', isGreaterThanOrEqualTo: startDate)
-        .where('dueDate', isLessThanOrEqualTo: endDate)
+        .where('date', isEqualTo: formattedDate)
         .get();
 
-    return querySnapshot.docs.map((doc) => Task.fromMap(doc.data())).toList();
+    return querySnapshot.docs
+        .map((doc) => Task.fromMap({
+              ...doc.data(),
+              'id': doc.id,
+            }))
+        .toList();
   }
 
   // Insert a new task
   Future<void> insertTask(Task task) async {
-    await _database.collection(_tasksCollection).doc(task.id).set(task.toMap());
+    await _database.collection(_tasksCollection).add(task.toMap());
   }
 
   // Update an existing task

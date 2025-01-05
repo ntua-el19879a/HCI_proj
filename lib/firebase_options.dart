@@ -85,4 +85,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'prioritize-it-6c0ed.firebasestorage.app',
     measurementId: 'G-V4MQKCM461',
   );
+
 }

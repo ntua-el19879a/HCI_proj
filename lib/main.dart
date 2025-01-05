@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:prioritize_it/providers/task_provider.dart';
 import 'package:prioritize_it/providers/user_provider.dart';
+import 'package:prioritize_it/providers/auth_provider.dart';
 import 'package:prioritize_it/services/database_service.dart';
 // import 'package:prioritize_it/services/database_service.dart';
 import 'package:prioritize_it/services/notification_service.dart';
@@ -48,6 +49,7 @@ void main() async {
           return userProvider;
         }),
         ChangeNotifierProvider(create: (context) => ThemeProvider(isDarkMode)),
+        ChangeNotifierProvider(create: (context) => CustomAuthProvider(db)),
         // ... other providers
       ],
       child: const App(),

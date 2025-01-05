@@ -21,9 +21,9 @@ class TaskItem extends StatelessWidget {
         },
       ),
       title: Text(task.title),
-      subtitle: task.dueDate != null
-          ? Text('Due: ${DateFormat('yyyy-dd-MM').format(task.dueDate!)}'
-          '${task.dueDate!.hour != 0 || task.dueDate!.minute != 0 ? ' ' + DateFormat('HH:mm').format(task.dueDate!) : ''}')
+      subtitle: task.date != null
+          ? Text('Due: ${DateFormat('yyyy-dd-MM').format(task.date!)}'
+              '${task.date!.hour != 0 || task.date!.minute != 0 ? ' ' + DateFormat('HH:mm').format(task.date!) : ''}')
           : null,
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
@@ -37,7 +37,7 @@ class TaskItem extends StatelessWidget {
             icon: const Icon(Icons.delete),
             onPressed: () {
               Provider.of<TaskProvider>(context, listen: false)
-                  .deleteTask(task.id!);
+                  .deleteTask(task);
             },
           ),
         ],

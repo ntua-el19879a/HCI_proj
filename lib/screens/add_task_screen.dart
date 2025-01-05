@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:prioritize_it/models/task.dart';
-import 'package:prioritize_it/providers/task_provider.dart';
-import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:intl/intl.dart';
+import 'package:prioritize_it/models/task.dart';
+import 'package:prioritize_it/providers/auth_provider.dart';
+import 'package:prioritize_it/providers/task_provider.dart';
+import 'package:prioritize_it/providers/user_provider.dart';
 import 'package:prioritize_it/services/gps_service.dart';
 import 'package:prioritize_it/services/notification_service.dart';
-import 'package:intl/intl.dart';
-import 'package:prioritize_it/providers/user_provider.dart';
+import 'package:provider/provider.dart';
 
 class AddTaskScreen extends StatefulWidget {
   final Task? task;
@@ -23,6 +24,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
+  late String? _currentUserId;
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
   String? _locationString;
@@ -31,12 +33,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   void initState() {
     super.initState();
     _selectedDate = widget.initialDate;
+    _currentUserId =
+        Provider.of<CustomAuthProvider>(context, listen: false).currentUser?.id;
     if (widget.task != null) {
       _titleController.text = widget.task!.title;
       _descriptionController.text = widget.task!.description ?? '';
-      _selectedDate = widget.task!.dueDate;
-      _selectedTime = widget.task!.dueDate != null
-          ? TimeOfDay.fromDateTime(widget.task!.dueDate!)
+      _selectedDate = widget.task!.date;
+      _selectedTime = widget.task!.date != null
+          ? TimeOfDay.fromDateTime(widget.task!.date!)
           : null;
       _locationString = widget.task!.location;
     }
@@ -59,8 +63,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           _selectedDate!.day,
         );
         if (_selectedTime != null) {
-          combinedDateTime = combinedDateTime.add(
-              Duration(hours: _selectedTime!.hour, minutes: _selectedTime!.minute));
+          combinedDateTime = combinedDateTime.add(Duration(
+              hours: _selectedTime!.hour, minutes: _selectedTime!.minute));
         }
       }
 
@@ -72,8 +76,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       if (widget.task == null) {
         final newTask = Task(
           title: _titleController.text,
+          userId: _currentUserId!,
           description: _descriptionController.text,
-          dueDate: combinedDateTime,
+          date: combinedDateTime,
           isCompleted: false,
           location: _locationString,
         );
@@ -82,19 +87,20 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         Provider.of<UserProvider>(context, listen: false).handleTaskAdded();
         try {
           await NotificationService.showNotification(
-            id: newTask.id ?? 0,
+            id: DateTime.now().millisecondsSinceEpoch,
             title: 'Task Added',
             body: 'You added: ${newTask.title}',
           );
         } catch (e) {
-          print("Error showing notification: $e");
+          debugPrint("Error showing notification: $e");
         }
       } else {
         final updatedTask = Task(
           id: widget.task!.id,
+          userId: _currentUserId!,
           title: _titleController.text,
           description: _descriptionController.text,
-          dueDate: combinedDateTime,
+          date: combinedDateTime,
           isCompleted: widget.task!.isCompleted,
           location: _locationString,
         );
@@ -199,7 +205,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _submitData,
-                  child: Text(widget.task == null ? 'Add Task' : 'Save Changes'),
+                  child:
+                      Text(widget.task == null ? 'Add Task' : 'Save Changes'),
                 ),
               ],
             ),

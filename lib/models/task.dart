@@ -2,16 +2,18 @@ class Task {
   String? id;
   String title;
   String? description;
-  DateTime? dueDate;
+  DateTime? date;
+  String userId;
   bool isCompleted;
   String? location;
   int? priority;
 
   Task({
     this.id,
+    required this.userId,
     required this.title,
     this.description,
-    this.dueDate,
+    this.date,
     this.isCompleted = false,
     this.location,
     this.priority,
@@ -21,8 +23,9 @@ class Task {
     return {
       'id': id,
       'title': title,
+      'userId': userId,
       'description': description,
-      'dueDate': dueDate?.toIso8601String(),
+      'date': date?.toIso8601String(),
       'isCompleted': isCompleted ? 1 : 0,
       'location': location,
       'priority': priority,
@@ -32,9 +35,10 @@ class Task {
   factory Task.fromMap(Map<String, dynamic> map) {
     return Task(
       id: map['id'],
+      userId: map['userId'],
       title: map['title'],
       description: map['description'],
-      dueDate: map['dueDate'] != null ? DateTime.parse(map['dueDate']) : null,
+      date: map['date'] != null ? DateTime.parse(map['date']) : null,
       isCompleted: map['isCompleted'] == 1,
       location: map['location'],
       priority: map['priority'],

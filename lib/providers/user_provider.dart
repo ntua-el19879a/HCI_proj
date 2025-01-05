@@ -16,20 +16,20 @@ class UserProvider with ChangeNotifier {
   bool _isLoading = false;
 
   Future<void> loadUser() async {
-    if (_isLoading) return;
+    // if (_isLoading) return;
 
-    _isLoading = true;
-    notifyListeners();
+    // _isLoading = true;
+    // notifyListeners();
 
-    _user = await dbService.getUser('');
-    if (_user == null) {
-      _user = User();
-      await dbService.insertUser(_user!);
-    }
-    await _checkStreak(); // Now awaited
+    // _user = await dbService.getUser('');
+    // if (_user == null) {
+    //   _user = User();
+    //   await dbService.insertUser(_user!);
+    // }
+    // await _checkStreak(); // Now awaited
 
-    _isLoading = false;
-    notifyListeners();
+    // _isLoading = false;
+    // notifyListeners();
   }
 
   Future<void> updateUser(User updatedUser) async {

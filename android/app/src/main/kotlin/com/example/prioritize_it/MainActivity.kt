@@ -1,4 +1,4 @@
-package com.example.prioritize_it
+package com.hci.p
 
 import io.flutter.embedding.android.FlutterActivity
 

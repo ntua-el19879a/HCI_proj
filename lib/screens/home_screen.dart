@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:prioritize_it/providers/auth_provider.dart';
 import 'package:prioritize_it/providers/task_provider.dart';
-import 'package:prioritize_it/widgets/task_item.dart';
-import 'package:provider/provider.dart';
-import 'package:prioritize_it/utils/app_constants.dart';
 import 'package:prioritize_it/screens/add_task_screen.dart';
 import 'package:prioritize_it/screens/task_detail_screen.dart';
-import 'package:intl/intl.dart';
-import 'package:prioritize_it/screens/themes_screen.dart';
-
-
-
+import 'package:prioritize_it/widgets/task_item.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   final DateTime? selectedDate;
@@ -22,10 +18,13 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late DateTime _selectedDate;
+  late String? _currentUserId;
 
   @override
   void initState() {
     super.initState();
+    _currentUserId =
+        Provider.of<CustomAuthProvider>(context, listen: false).currentUser?.id;
     _selectedDate = widget.selectedDate ?? DateTime.now();
     _loadTasksForSelectedDate();
   }
@@ -41,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _loadTasksForSelectedDate() {
     Provider.of<TaskProvider>(context, listen: false)
-        .loadTasksForDate(_selectedDate);
+        .loadTasksForDate(_currentUserId!, _selectedDate);
   }
 
   void _changeDate(int days) {
@@ -139,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
               onTap: () {
                 Navigator.pop(context); // Close drawer
                 Navigator.pushNamed(context, '/themes');
-                },
+              },
             ),
             ListTile(
               leading: const Icon(Icons.star),
@@ -163,17 +162,17 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Consumer<TaskProvider>(
         builder: (context, taskProvider, child) {
           final selectedTasks = taskProvider.tasks
-              .where((task) => task.dueDate != null)
+              .where((task) => task.date != null)
               .where((task) =>
-          task.dueDate!.year == _selectedDate.year &&
-              task.dueDate!.month == _selectedDate.month &&
-              task.dueDate!.day == _selectedDate.day)
+                  task.date!.year == _selectedDate.year &&
+                  task.date!.month == _selectedDate.month &&
+                  task.date!.day == _selectedDate.day)
               .toList();
 
           final currentTasks =
-          selectedTasks.where((task) => !task.isCompleted).toList();
+              selectedTasks.where((task) => !task.isCompleted).toList();
           final completedTasks =
-          selectedTasks.where((task) => task.isCompleted).toList();
+              selectedTasks.where((task) => task.isCompleted).toList();
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -182,7 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: EdgeInsets.all(8.0),
                 child: Text('Current Tasks',
                     style:
-                    TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               ),
               Expanded(
                 child: ListView.builder(
@@ -217,7 +216,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: EdgeInsets.all(8.0),
                 child: Text('Completed Tasks',
                     style:
-                    TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               ),
               Expanded(
                 child: ListView.builder(
@@ -255,17 +254,17 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: _isPastDate()
           ? null
           : FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  AddTaskScreen(initialDate: _selectedDate),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        AddTaskScreen(initialDate: _selectedDate),
+                  ),
+                );
+              },
+              child: const Icon(Icons.add),
             ),
-          );
-        },
-        child: const Icon(Icons.add),
-      ),
     );
   }
 }
