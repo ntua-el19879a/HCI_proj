@@ -156,6 +156,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 Navigator.pushNamed(context, '/settings');
               },
             ),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Logout'),
+              onTap: () async {
+                final authProvider =
+                    Provider.of<CustomAuthProvider>(context, listen: false);
+                await authProvider.logOut();
+                Navigator.pushReplacementNamed(context, '/login');
+              },
+            )
           ],
         ),
       ),

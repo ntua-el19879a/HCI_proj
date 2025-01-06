@@ -14,18 +14,26 @@ class DatabaseService {
 
   // --- User Methods ---
 
-  // Get the user by ID
-  Future<User?> getUser(String userId) async {
-    final docSnapshot =
-        await _database.collection(_usersCollection).doc(userId).get();
-    if (!docSnapshot.exists) return null;
+  Future<User?> getUserByUid(String uid) async {
+    final querySnapshot = await _database
+        .collection(_usersCollection)
+        .where('uid', isEqualTo: uid)
+        .get();
 
-    return User.fromMap(docSnapshot.data()!);
+    if (querySnapshot.docs.isEmpty) return null;
+
+    final doc = querySnapshot.docs.first;
+
+    return User.fromMap(doc.data()..['id'] = doc.id);
   }
 
   // Insert a new user
-  Future<void> insertUser(User user) async {
-    await _database.collection(_usersCollection).doc(user.id).set(user.toMap());
+  Future<User> insertUser(User user) async {
+    final docRef =
+        await _database.collection(_usersCollection).add(user.toMap());
+    final docId = docRef.id;
+    User createdUser = User.fromMap({...user.toMap(), 'id': docId});
+    return createdUser;
   }
 
   // Update an existing user

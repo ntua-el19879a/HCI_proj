@@ -1,0 +1,7 @@
+/**
+TODO:
+1) Fix user collection
+2) Add google authentication
+3) Keep user login
+4) Logout  
+*/

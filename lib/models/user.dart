@@ -1,5 +1,6 @@
 class User {
-  String id;
+  String? id;
+  String uid;
   String name; // Optional: You can make the user provide a name
   int currentStreak;
   int longestStreak;
@@ -11,8 +12,9 @@ class User {
   // List<DateTime> completedTaskDates;
 
   User({
-    required this.id,
+    this.id,
     required this.name,
+    required this.uid,
     required this.email,
     required this.password,
     this.currentStreak = 0,
@@ -25,9 +27,9 @@ class User {
   // Convert a User object into a Map for database storage
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
       'name': name,
       'email': email,
+      'uid': uid,
       'password': password,
       'currentStreak': currentStreak,
       'longestStreak': longestStreak,
@@ -41,6 +43,7 @@ class User {
   factory User.fromMap(Map<String, dynamic> map) {
     return User(
       id: map['id'],
+      uid: map['uid'],
       name: map['name'],
       password: map['password'],
       email: map['email'],

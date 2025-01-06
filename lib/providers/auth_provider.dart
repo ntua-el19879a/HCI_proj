@@ -9,10 +9,21 @@ class CustomAuthProvider with ChangeNotifier {
   final DatabaseService _databaseService;
   User? _currentUser;
 
-  CustomAuthProvider(this._databaseService, {fbAuth.FirebaseAuth? firebaseAuth})
-      : _firebaseAuth = firebaseAuth ?? fbAuth.FirebaseAuth.instance;
+  CustomAuthProvider(
+    this._databaseService, {
+    fbAuth.FirebaseAuth? firebaseAuth,
+  }) : _firebaseAuth = firebaseAuth ?? fbAuth.FirebaseAuth.instance;
 
   User? get currentUser => _currentUser;
+
+  Future<void> checkUserLoggedIn() async {
+    final fbUser = _firebaseAuth.currentUser;
+    if (fbUser != null) {
+      // If user is already logged in, fetch user details from the database
+      _currentUser = await _databaseService.getUserByUid(fbUser.uid);
+      notifyListeners();
+    }
+  }
 
   Future<void> signUp(String email, String password, String name) async {
     try {
@@ -24,9 +35,11 @@ class CustomAuthProvider with ChangeNotifier {
       if (fbUser != null) {
         final hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
         final newUser = User(
-            id: fbUser.uid, name: name, email: email, password: hashedPassword);
-        await _databaseService.insertUser(newUser);
-        _currentUser = newUser;
+            uid: fbUser.uid,
+            name: name,
+            email: email,
+            password: hashedPassword);
+        _currentUser = await _databaseService.insertUser(newUser);
         notifyListeners();
       }
     } catch (e) {
@@ -42,7 +55,7 @@ class CustomAuthProvider with ChangeNotifier {
       );
       final fbUser = userCredential.user;
       if (fbUser != null) {
-        _currentUser = await _databaseService.getUser(fbUser.uid);
+        _currentUser = await _databaseService.getUserByUid(fbUser.uid);
         notifyListeners();
       }
     } catch (e) {
