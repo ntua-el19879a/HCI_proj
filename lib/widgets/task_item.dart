@@ -12,23 +12,36 @@ class TaskItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final isPastDate = task.date != null && task.date!.isBefore(now);
+
     return ListTile(
       leading: Checkbox(
         value: task.isCompleted,
-        onChanged: (bool? newValue) {
+        onChanged: isPastDate || task.isCompleted
+            ? (bool? newValue) {
           if (newValue != null) {
             Provider.of<TaskProvider>(context, listen: false)
                 .toggleTaskCompletion(task.id!, task.userId, task.date!);
           }
-        },
+        }
+            : null, // Disable checkbox for future tasks
       ),
       title: Text(task.title),
-      subtitle: task.date != null &&
-          (task.date!.hour != 0 || task.date!.minute != 0)
-          ? Text(
-        'Time: ${DateFormat('HH:mm').format(task.date!)}',
-      )
-          : null,
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (task.date != null &&
+              (task.date!.hour != 0 || task.date!.minute != 0))
+            Text(
+              'Time: ${DateFormat('HH:mm').format(task.date!)}',
+            ),
+          if (task.address != null && task.address!.isNotEmpty)
+            Text(
+              'Location: ${task.address}',
+            ),
+        ],
+      ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
