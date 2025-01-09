@@ -36,9 +36,9 @@ class TaskDetailScreen extends StatelessWidget {
                 style: const TextStyle(fontSize: 18),
               ),
             const SizedBox(height: 10),
-            if (task.location != null)
+            if (task.latLngLocation != null)
               Text(
-                'Location: ${task.location}',
+                'Location: ${task.latLngLocation}',
                 style: const TextStyle(fontSize: 18),
               ),
             // Add more details as needed

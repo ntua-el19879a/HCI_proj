@@ -27,15 +27,14 @@ void main() async {
     return; // Consider alternative error handling (e.g., show error screen)
   }
 
-  try {
-    await NotificationService.initialize();
+ try {
+   await NotificationService.initialize();
     debugPrint("NotificationService initialized successfully.");
   } catch (e) {
-    debugPrint("Error initializing NotificationService: $e");
-    // You might want to handle this differently, e.g., by disabling
-    // notifications or showing a warning to the user
-  }
-
+   debugPrint("Error initializing NotificationService: $e");
+   // You might want to handle this differently, e.g., by disabling
+   // notifications or showing a warning to the user
+ }
   // Load the user's theme preference before creating the app
   bool isDarkMode = await ThemeProvider.loadThemePreference();
 

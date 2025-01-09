@@ -63,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _selectedDate.month == DateTime.now().month) {
       appBarTitle = "Today";
     } else {
-      appBarTitle = DateFormat('yyyy-dd-MM').format(_selectedDate);
+      appBarTitle = DateFormat('yyyy-MM-dd').format(_selectedDate);
     }
 
     return Scaffold(
@@ -133,10 +133,10 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.color_lens), // Or any suitable icon
+              leading: const Icon(Icons.color_lens),
               title: const Text('Themes'),
               onTap: () {
-                Navigator.pop(context); // Close drawer
+                Navigator.pop(context);
                 Navigator.pushNamed(context, '/themes');
               },
             ),
@@ -161,7 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
               title: const Text('Logout'),
               onTap: () async {
                 final authProvider =
-                    Provider.of<CustomAuthProvider>(context, listen: false);
+                Provider.of<CustomAuthProvider>(context, listen: false);
                 await authProvider.logOut();
                 Navigator.pushReplacementNamed(context, '/login');
               },
@@ -174,27 +174,29 @@ class _HomeScreenState extends State<HomeScreen> {
           final selectedTasks = taskProvider.tasks
               .where((task) => task.date != null)
               .where((task) =>
-                  task.date!.year == _selectedDate.year &&
-                  task.date!.month == _selectedDate.month &&
-                  task.date!.day == _selectedDate.day)
+          task.date!.year == _selectedDate.year &&
+              task.date!.month == _selectedDate.month &&
+              task.date!.day == _selectedDate.day)
               .toList();
 
           final currentTasks =
-              selectedTasks.where((task) => !task.isCompleted).toList();
+          selectedTasks.where((task) => !task.isCompleted).toList();
           final completedTasks =
-              selectedTasks.where((task) => task.isCompleted).toList();
+          selectedTasks.where((task) => task.isCompleted).toList();
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text('Current Tasks',
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              ),
-              Expanded(
-                child: ListView.builder(
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text('Current Tasks',
+                      style:
+                      TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                ),
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
                   itemCount: currentTasks.length,
                   itemBuilder: (context, index) {
                     final task = currentTasks[index];
@@ -221,15 +223,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   },
                 ),
-              ),
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text('Completed Tasks',
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              ),
-              Expanded(
-                child: ListView.builder(
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text('Completed Tasks',
+                      style:
+                      TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                ),
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
                   itemCount: completedTasks.length,
                   itemBuilder: (context, index) {
                     final task = completedTasks[index];
@@ -256,25 +258,25 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   },
                 ),
-              ),
-            ],
+              ],
+            ),
           );
         },
       ),
       floatingActionButton: _isPastDate()
           ? null
           : FloatingActionButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        AddTaskScreen(initialDate: _selectedDate),
-                  ),
-                );
-              },
-              child: const Icon(Icons.add),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  AddTaskScreen(initialDate: _selectedDate),
             ),
+          );
+        },
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }

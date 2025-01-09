@@ -4,6 +4,8 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We need access to your location to create tasks based on your current location.</string>
 	<key>CFBundleDisplayName</key>
 	<string>Prioritize It</string>
 	<key>CFBundleExecutable</key>

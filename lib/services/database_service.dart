@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:prioritize_it/models/task.dart';
 import 'package:prioritize_it/models/user.dart';
+import 'package:flutter/material.dart';
 
 class DatabaseService {
   final FirebaseFirestore _database;
@@ -30,7 +31,7 @@ class DatabaseService {
   // Insert a new user
   Future<User> insertUser(User user) async {
     final docRef =
-        await _database.collection(_usersCollection).add(user.toMap());
+    await _database.collection(_usersCollection).add(user.toMap());
     final docId = docRef.id;
     User createdUser = User.fromMap({...user.toMap(), 'id': docId});
     return createdUser;
@@ -48,20 +49,21 @@ class DatabaseService {
 
   // Get tasks for a specific date
   Future<List<Task>> getTasksForDate(String userId, DateTime date) async {
-    final formattedDate =
-        DateTime(date.year, date.month, date.day, 0, 0, 0).toIso8601String();
+    final startOfDay = DateTime(date.year, date.month, date.day).toUtc();
+    final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59, 999).toUtc();
 
     final querySnapshot = await _database
         .collection(_tasksCollection)
         .where('userId', isEqualTo: userId)
-        .where('date', isEqualTo: formattedDate)
+        .where('date', isGreaterThanOrEqualTo: startOfDay.toIso8601String())
+        .where('date', isLessThanOrEqualTo: endOfDay.toIso8601String())
         .get();
 
     return querySnapshot.docs
         .map((doc) => Task.fromMap({
-              ...doc.data(),
-              'id': doc.id,
-            }))
+      ...doc.data(),
+      'id': doc.id,
+    }))
         .toList();
   }
 
@@ -72,12 +74,13 @@ class DatabaseService {
 
   // Update an existing task
   Future<void> updateTask(Task task) async {
-    await _database
-        .collection(_tasksCollection)
-        .doc(task.id)
-        .update(task.toMap());
+    try {
+      await _database.collection(_tasksCollection).doc(task.id).update(task.toMap());
+    } catch (e) {
+      debugPrint("Error updating task: $e");
+      throw e;
+    }
   }
-
   // Delete a task
   Future<void> deleteTask(String taskId) async {
     await _database.collection(_tasksCollection).doc(taskId).delete();

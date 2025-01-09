@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart'; // For reverse geocoding
 import 'package:intl/intl.dart';
 import 'package:prioritize_it/models/task.dart';
 import 'package:prioritize_it/providers/auth_provider.dart';
 import 'package:prioritize_it/providers/task_provider.dart';
 import 'package:prioritize_it/providers/user_provider.dart';
+import 'package:prioritize_it/screens/google_map_screen.dart';
 import 'package:prioritize_it/services/gps_service.dart';
 import 'package:prioritize_it/services/notification_service.dart';
 import 'package:provider/provider.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class AddTaskScreen extends StatefulWidget {
   final Task? task;
   final DateTime? initialDate;
 
-  const AddTaskScreen({Key? key, this.task, this.initialDate})
-      : super(key: key);
+  const AddTaskScreen({Key? key, this.task, this.initialDate}) : super(key: key);
 
   @override
   _AddTaskScreenState createState() => _AddTaskScreenState();
@@ -27,14 +29,16 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   late String? _currentUserId;
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
-  String? _locationString;
+  LatLng? _selectedLocation;
+  String? _address; // To store the human-readable address
 
   @override
   void initState() {
     super.initState();
-    _selectedDate = widget.initialDate;
     _currentUserId =
         Provider.of<CustomAuthProvider>(context, listen: false).currentUser?.id;
+
+    // Pre-fill fields if editing an existing task
     if (widget.task != null) {
       _titleController.text = widget.task!.title;
       _descriptionController.text = widget.task!.description ?? '';
@@ -42,7 +46,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       _selectedTime = widget.task!.date != null
           ? TimeOfDay.fromDateTime(widget.task!.date!)
           : null;
-      _locationString = widget.task!.location;
+      _selectedLocation = widget.task!.latLngLocation;
+      _address = widget.task!.address;
+    } else {
+      _selectedDate = widget.initialDate;
     }
   }
 
@@ -53,26 +60,59 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     super.dispose();
   }
 
+  Future<void> _getAddressFromLatLng(LatLng latLng) async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        latLng.latitude,
+        latLng.longitude,
+      );
+      if (placemarks.isNotEmpty) {
+        Placemark placemark = placemarks.first;
+        setState(() {
+          _address = '${placemark.street}, ${placemark.locality}, ${placemark.country}';
+        });
+      }
+    } catch (e) {
+      debugPrint("Error getting address: $e");
+    }
+  }
+
   void _submitData() async {
     if (_formKey.currentState!.validate()) {
       DateTime? combinedDateTime;
+
+      // Combine date and time if both are set
       if (_selectedDate != null) {
         combinedDateTime = DateTime(
           _selectedDate!.year,
           _selectedDate!.month,
           _selectedDate!.day,
         );
+
         if (_selectedTime != null) {
           combinedDateTime = combinedDateTime.add(Duration(
-              hours: _selectedTime!.hour, minutes: _selectedTime!.minute));
+            hours: _selectedTime!.hour,
+            minutes: _selectedTime!.minute,
+          ));
         }
       }
 
-      Position? position = await GpsService.getCurrentLocation();
-      if (position != null) {
-        _locationString = "${position.latitude}, ${position.longitude}";
+      // Retrieve current location if none is set
+      if (_selectedLocation == null) {
+        try {
+          Position? position = await GpsService.getCurrentLocation();
+          if (position != null) {
+            _selectedLocation = LatLng(position.latitude, position.longitude);
+            await _getAddressFromLatLng(_selectedLocation!);
+          } else {
+            debugPrint("Location is null");
+          }
+        } catch (e) {
+          debugPrint("Error getting location: $e");
+        }
       }
 
+      // Create a new task or update an existing one
       if (widget.task == null) {
         final newTask = Task(
           title: _titleController.text,
@@ -80,14 +120,15 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           description: _descriptionController.text,
           date: combinedDateTime,
           isCompleted: false,
-          location: _locationString,
+          latLngLocation: _selectedLocation,
+          address: _address, // Save the address
         );
 
         Provider.of<TaskProvider>(context, listen: false).addTask(newTask);
         Provider.of<UserProvider>(context, listen: false).handleTaskAdded();
         try {
           await NotificationService.showNotification(
-            id: DateTime.now().millisecondsSinceEpoch,
+            id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
             title: 'Task Added',
             body: 'You added: ${newTask.title}',
           );
@@ -102,7 +143,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           description: _descriptionController.text,
           date: combinedDateTime,
           isCompleted: widget.task!.isCompleted,
-          location: _locationString,
+          latLngLocation: _selectedLocation,
+          address: _address, // Save the address
         );
 
         Provider.of<TaskProvider>(context, listen: false)
@@ -115,19 +157,17 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
   void _presentDatePicker() {
     DateTime initialDate = _selectedDate ?? DateTime.now();
-    if (initialDate.isBefore(DateTime.now())) {
-      initialDate = DateTime.now();
-    }
     showDatePicker(
       context: context,
       initialDate: initialDate,
       firstDate: DateTime.now(),
       lastDate: DateTime(2100),
     ).then((pickedDate) {
-      if (pickedDate == null) return;
-      setState(() {
-        _selectedDate = pickedDate;
-      });
+      if (pickedDate != null) {
+        setState(() {
+          _selectedDate = pickedDate;
+        });
+      }
     });
   }
 
@@ -136,10 +176,11 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       context: context,
       initialTime: _selectedTime ?? TimeOfDay.now(),
     ).then((pickedTime) {
-      if (pickedTime == null) return;
-      setState(() {
-        _selectedTime = pickedTime;
-      });
+      if (pickedTime != null) {
+        setState(() {
+          _selectedTime = pickedTime;
+        });
+      }
     });
   }
 
@@ -193,7 +234,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       child: Text(
                         _selectedTime == null
                             ? 'No Time Set'
-                            : 'Time: ${DateFormat('HH:mm').format(DateTime(0, 0, 0, _selectedTime!.hour, _selectedTime!.minute))}',
+                            : 'Time: ${_selectedTime!.format(context)}',
                       ),
                     ),
                     TextButton(
@@ -202,11 +243,44 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     ),
                   ],
                 ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        _address ?? 'No location selected',
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => GoogleMapScreen(
+                              initialLocation: _selectedLocation,
+                              onLocationSelected: (LatLng location) async {
+                                setState(() {
+                                  _selectedLocation = location;
+                                });
+                                await _getAddressFromLatLng(location);
+                              },
+                            ),
+                          ),
+                        );
+                        if (result != null) {
+                          setState(() {
+                            _selectedLocation = result;
+                          });
+                          await _getAddressFromLatLng(result);
+                        }
+                      },
+                      child: const Text('Select Location'),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _submitData,
-                  child:
-                      Text(widget.task == null ? 'Add Task' : 'Save Changes'),
+                  child: Text(widget.task == null ? 'Add Task' : 'Save Changes'),
                 ),
               ],
             ),

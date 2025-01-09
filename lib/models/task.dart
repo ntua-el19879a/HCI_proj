@@ -1,12 +1,14 @@
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 class Task {
   String? id;
   String title;
   String? description;
   DateTime? date;
   String userId;
+  String? address; // New property for human-readable address
   bool isCompleted;
-  String? location;
-  int? priority;
+  LatLng? latLngLocation;
 
   Task({
     this.id,
@@ -15,8 +17,8 @@ class Task {
     this.description,
     this.date,
     this.isCompleted = false,
-    this.location,
-    this.priority,
+    this.latLngLocation,
+    this.address, // Add address to the constructor
   });
 
   Map<String, dynamic> toMap() {
@@ -26,9 +28,11 @@ class Task {
       'userId': userId,
       'description': description,
       'date': date?.toIso8601String(),
-      'isCompleted': isCompleted ? 1 : 0,
-      'location': location,
-      'priority': priority,
+      'isCompleted': isCompleted,
+      'latLngLocation': latLngLocation != null
+          ? {'latitude': latLngLocation!.latitude, 'longitude': latLngLocation!.longitude}
+          : null,
+      'address': address, // Include address in map conversion
     };
   }
 
@@ -39,9 +43,14 @@ class Task {
       title: map['title'],
       description: map['description'],
       date: map['date'] != null ? DateTime.parse(map['date']) : null,
-      isCompleted: map['isCompleted'] == 1,
-      location: map['location'],
-      priority: map['priority'],
+      isCompleted: map['isCompleted'] ?? false,
+      latLngLocation: map['latLngLocation'] != null
+          ? LatLng(
+        map['latLngLocation']['latitude'],
+        map['latLngLocation']['longitude'],
+      )
+          : null,
+      address: map['address'], // Retrieve address from the map
     );
   }
 }
