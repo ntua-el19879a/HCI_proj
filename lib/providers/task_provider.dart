@@ -16,21 +16,16 @@ class TaskProvider with ChangeNotifier {
   }
 
   Future<void> addTask(Task task) async {
-    try {
-      await dbService.insertTask(task);
-      if (task.userId.isNotEmpty) {
-        await loadTasksForDate(task.userId, task.date ?? DateTime.now());
-      }
-    } catch (e) {
-      debugPrint("Error adding task: $e");
-      throw e;
+    await dbService.insertTask(task);
+    if (task.userId.isNotEmpty && task.date != null) {
+      await loadTasksForDate(task.userId, task.date!);
     }
   }
 
   Future<void> updateTask(Task task) async {
     await dbService.updateTask(task);
-    if (task.userId.isNotEmpty) {
-      await loadTasksForDate(task.userId, task.date ?? DateTime.now());
+    if (task.userId.isNotEmpty && task.date != null) {
+      await loadTasksForDate(task.userId, task.date!);
     }
   }
 
@@ -41,7 +36,12 @@ class TaskProvider with ChangeNotifier {
 
   Future<void> toggleTaskCompletion(
       String taskId, String userId, DateTime date) async {
-    Task task = _tasks.firstWhere((t) => t.id == taskId);
+    Task task = _tasks.firstWhere((t) => t.id == taskId, orElse: () => Task(id: '', title: '', userId: '', isCompleted: false));
+    if (task.id == null || task.id!.isEmpty) {
+      print("Task not found in the list");
+      return;
+    }
+
     task.isCompleted = !task.isCompleted;
     await dbService.updateTask(task);
     await loadTasksForDate(userId, date);

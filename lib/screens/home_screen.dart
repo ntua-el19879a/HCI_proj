@@ -49,7 +49,6 @@ class _HomeScreenState extends State<HomeScreen> {
       _loadTasksForSelectedDate();
     });
   }
-
   bool _isPastDate() {
     final now = DateTime.now();
     return _selectedDate.isBefore(DateTime(now.year, now.month, now.day));
@@ -57,46 +56,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    String appBarTitle;
-    if (_selectedDate.year == DateTime.now().year &&
-        _selectedDate.day == DateTime.now().day &&
-        _selectedDate.month == DateTime.now().month) {
-      appBarTitle = "Today";
-    } else {
-      appBarTitle = DateFormat('yyyy-MM-dd').format(_selectedDate);
-    }
+    String appBarTitle = _selectedDate.year == DateTime.now().year &&
+        _selectedDate.month == DateTime.now().month &&
+        _selectedDate.day == DateTime.now().day
+        ? "Today"
+        : DateFormat('yyyy-MM-dd').format(_selectedDate);
 
     return Scaffold(
       appBar: AppBar(
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SizedBox(width: 40),
-            Expanded(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('Prioritize It', style: TextStyle(fontSize: 15)),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.arrow_back_ios),
-                          onPressed: () => _changeDate(-1),
-                        ),
-                        Text(appBarTitle, style: TextStyle(fontSize: 20)),
-                        IconButton(
-                          icon: Icon(Icons.arrow_forward_ios),
-                          onPressed: () => _changeDate(1),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+            IconButton(
+              icon: const Icon(Icons.arrow_back_ios),
+              onPressed: () => _changeDate(-1),
             ),
-            SizedBox(width: 40),
+            Text(appBarTitle, style: const TextStyle(fontSize: 20)),
+            IconButton(
+              icon: const Icon(Icons.arrow_forward_ios),
+              onPressed: () => _changeDate(1),
+            ),
           ],
         ),
       ),
@@ -184,19 +163,17 @@ class _HomeScreenState extends State<HomeScreen> {
           final completedTasks =
           selectedTasks.where((task) => task.isCompleted).toList();
 
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text('Current Tasks',
-                      style:
-                      TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                ),
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text('Current Tasks',
+                    style:
+                    TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              ),
+              Expanded(
+                child: ListView.builder(
                   itemCount: currentTasks.length,
                   itemBuilder: (context, index) {
                     final task = currentTasks[index];
@@ -223,15 +200,18 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   },
                 ),
+              ),
                 const Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: Text('Completed Tasks',
-                      style:
-                      TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  child: Text(
+                    'Completed Tasks',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
                 ),
+
                 ListView.builder(
                   shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   itemCount: completedTasks.length,
                   itemBuilder: (context, index) {
                     final task = completedTasks[index];
@@ -244,22 +224,23 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         );
                       },
-                      child: TaskItem(
-                        task: task,
-                        onEdit: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => AddTaskScreen(task: task),
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  },
+    child: TaskItem(
+    task: task,
+    onEdit: () {
+          Navigator.push(
+          context,
+          MaterialPageRoute(
+          builder: (context) => AddTaskScreen(task: task),
+          ),
+          );
+
+
+          },
+                ),
+    );
+    },
                 ),
               ],
-            ),
           );
         },
       ),

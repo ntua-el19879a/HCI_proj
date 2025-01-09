@@ -15,23 +15,26 @@ class TaskItem extends StatelessWidget {
     return ListTile(
       leading: Checkbox(
         value: task.isCompleted,
-        onChanged: (value) {
-          Provider.of<TaskProvider>(context, listen: false)
-              .toggleTaskCompletion(task.id!, task.userId, task.date!);
+        onChanged: (bool? newValue) {
+          if (newValue != null) {
+            Provider.of<TaskProvider>(context, listen: false)
+                .toggleTaskCompletion(task.id!, task.userId, task.date!);
+          }
         },
       ),
       title: Text(task.title),
-
-      subtitle: task.date != null
-          ? Text('Due: ${DateFormat('yyyy-dd-MM').format(task.date!)}'
-          '${task.date!.hour != 0 || task.date!.minute != 0 ? ' ' + DateFormat('HH:mm').format(task.date!) : ''}')
+      subtitle: task.date != null &&
+          (task.date!.hour != 0 || task.date!.minute != 0)
+          ? Text(
+        'Time: ${DateFormat('HH:mm').format(task.date!)}',
+      )
           : null,
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (onEdit != null)
             IconButton(
-              icon: Icon(Icons.edit),
+              icon: const Icon(Icons.edit),
               onPressed: onEdit,
             ),
           IconButton(

@@ -6,8 +6,8 @@ class Task {
   String? description;
   DateTime? date;
   String userId;
-  String? address; // New property for human-readable address
-  bool isCompleted;
+  String? address;
+  bool isCompleted; // This should be a non-nullable bool
   LatLng? latLngLocation;
 
   Task({
@@ -16,9 +16,9 @@ class Task {
     required this.title,
     this.description,
     this.date,
-    this.isCompleted = false,
+    this.isCompleted = false, // Default to false for new tasks
+    this.address,
     this.latLngLocation,
-    this.address, // Add address to the constructor
   });
 
   Map<String, dynamic> toMap() {
@@ -28,11 +28,14 @@ class Task {
       'userId': userId,
       'description': description,
       'date': date?.toIso8601String(),
-      'isCompleted': isCompleted,
+      'isCompleted': isCompleted, // No need to convert to 1 or 0 for Firestore
+      'address': address,
       'latLngLocation': latLngLocation != null
-          ? {'latitude': latLngLocation!.latitude, 'longitude': latLngLocation!.longitude}
+          ? {
+        'latitude': latLngLocation!.latitude,
+        'longitude': latLngLocation!.longitude
+      }
           : null,
-      'address': address, // Include address in map conversion
     };
   }
 
@@ -43,14 +46,14 @@ class Task {
       title: map['title'],
       description: map['description'],
       date: map['date'] != null ? DateTime.parse(map['date']) : null,
-      isCompleted: map['isCompleted'] ?? false,
+      isCompleted: map['isCompleted'] ?? false, // Default to false if null
+      address: map['address'],
       latLngLocation: map['latLngLocation'] != null
           ? LatLng(
         map['latLngLocation']['latitude'],
         map['latLngLocation']['longitude'],
       )
           : null,
-      address: map['address'], // Retrieve address from the map
     );
   }
 }

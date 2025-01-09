@@ -31,17 +31,15 @@ class TaskDetailScreen extends StatelessWidget {
             const SizedBox(height: 10),
             if (task.date != null)
               Text(
-                'Due Date: ${DateFormat('yyyy-dd-MM').format(task.date!)}'
-                '${task.date!.hour != 0 || task.date!.minute != 0 ? ' ' + DateFormat('HH:mm').format(task.date!) : ''}',
+                'Time: ${DateFormat('HH:mm').format(task.date!)}',
                 style: const TextStyle(fontSize: 18),
               ),
             const SizedBox(height: 10),
-            if (task.latLngLocation != null)
+            if (task.address != null)
               Text(
-                'Location: ${task.latLngLocation}',
+                'Location: ${task.address}',
                 style: const TextStyle(fontSize: 18),
               ),
-            // Add more details as needed
           ],
         ),
       ),

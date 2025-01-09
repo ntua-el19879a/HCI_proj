@@ -2,15 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart'; // For reverse geocoding
 import 'package:intl/intl.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:prioritize_it/models/task.dart';
 import 'package:prioritize_it/providers/auth_provider.dart';
 import 'package:prioritize_it/providers/task_provider.dart';
 import 'package:prioritize_it/providers/user_provider.dart';
 import 'package:prioritize_it/screens/google_map_screen.dart';
-import 'package:prioritize_it/services/gps_service.dart';
 import 'package:prioritize_it/services/notification_service.dart';
 import 'package:provider/provider.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class AddTaskScreen extends StatefulWidget {
   final Task? task;
@@ -30,7 +29,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
   LatLng? _selectedLocation;
-  String? _address; // To store the human-readable address
+  String? _selectedAddress;
 
   @override
   void initState() {
@@ -38,7 +37,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     _currentUserId =
         Provider.of<CustomAuthProvider>(context, listen: false).currentUser?.id;
 
-    // Pre-fill fields if editing an existing task
     if (widget.task != null) {
       _titleController.text = widget.task!.title;
       _descriptionController.text = widget.task!.description ?? '';
@@ -47,7 +45,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           ? TimeOfDay.fromDateTime(widget.task!.date!)
           : null;
       _selectedLocation = widget.task!.latLngLocation;
-      _address = widget.task!.address;
+      _selectedAddress = widget.task!.address;
     } else {
       _selectedDate = widget.initialDate;
     }
@@ -69,7 +67,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       if (placemarks.isNotEmpty) {
         Placemark placemark = placemarks.first;
         setState(() {
-          _address = '${placemark.street}, ${placemark.locality}, ${placemark.country}';
+          _selectedAddress = '${placemark.street}, ${placemark.locality}, ${placemark.country}';
         });
       }
     } catch (e) {
@@ -81,7 +79,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     if (_formKey.currentState!.validate()) {
       DateTime? combinedDateTime;
 
-      // Combine date and time if both are set
       if (_selectedDate != null) {
         combinedDateTime = DateTime(
           _selectedDate!.year,
@@ -97,22 +94,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         }
       }
 
-      // Retrieve current location if none is set
-      if (_selectedLocation == null) {
-        try {
-          Position? position = await GpsService.getCurrentLocation();
-          if (position != null) {
-            _selectedLocation = LatLng(position.latitude, position.longitude);
-            await _getAddressFromLatLng(_selectedLocation!);
-          } else {
-            debugPrint("Location is null");
-          }
-        } catch (e) {
-          debugPrint("Error getting location: $e");
-        }
+      if (_selectedLocation != null && _selectedAddress == null) {
+        await _getAddressFromLatLng(_selectedLocation!);
       }
 
-      // Create a new task or update an existing one
       if (widget.task == null) {
         final newTask = Task(
           title: _titleController.text,
@@ -121,7 +106,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           date: combinedDateTime,
           isCompleted: false,
           latLngLocation: _selectedLocation,
-          address: _address, // Save the address
+          address: _selectedAddress,
         );
 
         Provider.of<TaskProvider>(context, listen: false).addTask(newTask);
@@ -144,7 +129,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           date: combinedDateTime,
           isCompleted: widget.task!.isCompleted,
           latLngLocation: _selectedLocation,
-          address: _address, // Save the address
+          address: _selectedAddress,
         );
 
         Provider.of<TaskProvider>(context, listen: false)
@@ -153,35 +138,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
       Navigator.of(context).pop();
     }
-  }
-
-  void _presentDatePicker() {
-    DateTime initialDate = _selectedDate ?? DateTime.now();
-    showDatePicker(
-      context: context,
-      initialDate: initialDate,
-      firstDate: DateTime.now(),
-      lastDate: DateTime(2100),
-    ).then((pickedDate) {
-      if (pickedDate != null) {
-        setState(() {
-          _selectedDate = pickedDate;
-        });
-      }
-    });
-  }
-
-  void _presentTimePicker() {
-    showTimePicker(
-      context: context,
-      initialTime: _selectedTime ?? TimeOfDay.now(),
-    ).then((pickedTime) {
-      if (pickedTime != null) {
-        setState(() {
-          _selectedTime = pickedTime;
-        });
-      }
-    });
   }
 
   @override
@@ -217,28 +173,23 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   children: [
                     Expanded(
                       child: Text(
-                        _selectedDate == null
-                            ? 'No Due Date'
-                            : 'Due Date: ${DateFormat('yyyy-MM-dd').format(_selectedDate!)}',
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: _presentDatePicker,
-                      child: const Text('Choose Date'),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
                         _selectedTime == null
                             ? 'No Time Set'
                             : 'Time: ${_selectedTime!.format(context)}',
                       ),
                     ),
                     TextButton(
-                      onPressed: _presentTimePicker,
+                      onPressed: () async {
+                        final pickedTime = await showTimePicker(
+                          context: context,
+                          initialTime: _selectedTime ?? TimeOfDay.now(),
+                        );
+                        if (pickedTime != null) {
+                          setState(() {
+                            _selectedTime = pickedTime;
+                          });
+                        }
+                      },
                       child: const Text('Choose Time'),
                     ),
                   ],
@@ -247,7 +198,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   children: [
                     Expanded(
                       child: Text(
-                        _address ?? 'No location selected',
+                        _selectedAddress == null
+                            ? 'No location selected'
+                            : 'Location: $_selectedAddress',
                       ),
                     ),
                     TextButton(
