@@ -40,7 +40,7 @@ class AuthWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authProvider =
-        Provider.of<CustomAuthProvider>(context, listen: false);
+    Provider.of<CustomAuthProvider>(context, listen: false);
 
     return FutureBuilder<void>(
       future: authProvider.checkUserLoggedIn(),

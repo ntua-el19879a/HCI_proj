@@ -43,7 +43,7 @@ void main() async {
           userProvider.loadUser(); // Load user data immediately
           return userProvider;
         }),
-        ChangeNotifierProvider(create: (context) => ThemeProvider()), // No arguments needed
+        ChangeNotifierProvider(create: (context) => ThemeProvider()),
         ChangeNotifierProvider(create: (context) => CustomAuthProvider(db)),
         // ... other providers
       ],

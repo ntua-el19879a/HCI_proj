@@ -20,6 +20,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            Consumer<ThemeProvider>(
+              builder: (context, themeProvider, child) {
+                return SwitchListTile(
+                  title: const Text('Dark Mode'),
+                  value: themeProvider.isDarkMode,
+                  onChanged: (value) {
+                    themeProvider.toggleDarkMode();
+                  },
+                );
+              },
+            ),
             // ... Add other settings here
           ],
         ),

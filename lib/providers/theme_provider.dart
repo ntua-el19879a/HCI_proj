@@ -69,6 +69,7 @@ class ThemeProvider with ChangeNotifier {
 
   ThemeData _currentTheme;
   String _currentThemeName;
+  bool _isDarkMode = false;
 
   ThemeProvider()
       : _currentTheme = ThemeData.light(),
@@ -80,31 +81,148 @@ class ThemeProvider with ChangeNotifier {
 
   String get currentThemeName => _currentThemeName;
 
+  bool get isDarkMode => _isDarkMode;
+
+  // Updated setTheme method
   void setTheme(ThemeData theme, String themeName) async {
     _currentTheme = theme;
     _currentThemeName = themeName;
+
+    // Apply dark mode modifications if _isDarkMode is true
+    if (_isDarkMode) {
+      _currentTheme = _applyDarkModeToTheme(theme);
+    }
+
     notifyListeners();
 
-    // Save the selected theme to SharedPreferences
+    // Save only the selected theme name to SharedPreferences
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('selectedTheme', themeName);
+  }
+
+  // Updated toggleDarkMode method
+  void toggleDarkMode() async {
+    _isDarkMode = !_isDarkMode;
+
+    // Re-apply dark mode modifications based on the new _isDarkMode value
+    _currentTheme = _applyDarkModeToTheme(getThemeByName(_currentThemeName));
+
+    notifyListeners();
+
+    // Save the dark mode preference to SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isDarkMode', _isDarkMode);
   }
 
   Future<void> _loadInitialTheme() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? savedThemeName = prefs.getString('selectedTheme');
+    _isDarkMode = prefs.getBool('isDarkMode') ?? false; // Load dark mode preference
 
     if (savedThemeName != null) {
       _currentThemeName = savedThemeName;
-      _currentTheme = getThemeByName(savedThemeName);
+      _currentTheme = _getThemeData(savedThemeName);
     } else {
       _currentTheme = lightTheme; // Default to light theme
       _currentThemeName = 'Light Blue';
     }
 
+    // Apply dark mode modifications if _isDarkMode is true
+    if (_isDarkMode) {
+      _currentTheme = _applyDarkModeToTheme(_currentTheme);
+    }
+
     notifyListeners();
   }
 
+  // Helper method to get theme data based on name
+  ThemeData _getThemeData(String name) {
+    ThemeData baseTheme;
+    switch (name) {
+      case 'Light Blue':
+        baseTheme = lightTheme;
+        break;
+      case 'Dark Indigo':
+        baseTheme = darkIndigoTheme;
+        break;
+      case 'Light Green':
+        baseTheme = lightGreenTheme;
+        break;
+      case 'Dark Green':
+        baseTheme = darkGreenTheme;
+        break;
+      case 'Space':
+        baseTheme = spaceTheme;
+        break;
+      case 'Royal':
+        baseTheme = royalTheme;
+        break;
+      case 'Ocean':
+        baseTheme = oceanTheme;
+        break;
+      case 'Sunset':
+        baseTheme = sunsetTheme;
+        break;
+      default:
+        baseTheme = lightTheme; // Default to light theme if not found
+    }
+    return baseTheme;
+  }
+
+  // Helper method to apply dark mode modifications to a theme
+  ThemeData _applyDarkModeToTheme(ThemeData theme) {
+    if (_isDarkMode) {
+      return theme.copyWith(
+        scaffoldBackgroundColor: theme.scaffoldBackgroundColor
+            .withBlue(theme.scaffoldBackgroundColor.blue - 20)
+            .withGreen(theme.scaffoldBackgroundColor.green - 20)
+            .withRed(theme.scaffoldBackgroundColor.red - 20),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.black,
+          titleTextStyle: TextStyle(
+            color: Colors.white,
+            fontSize: 20.0,
+            fontWeight: FontWeight.bold,
+          ),
+          iconTheme: IconThemeData(color: Colors.white),
+          actionsIconTheme: IconThemeData(color: Colors.white),
+        ),
+        textTheme: theme.textTheme.apply(
+          bodyColor: Colors.white,
+          displayColor: Colors.white,
+        ),
+        switchTheme: SwitchThemeData(
+          thumbColor: MaterialStateProperty.resolveWith<Color?>(
+                  (Set<MaterialState> states) {
+                if (states.contains(MaterialState.selected)) {
+                  return Colors.white;
+                }
+                return null;
+              }),
+          trackColor: MaterialStateProperty.resolveWith<Color?>(
+                  (Set<MaterialState> states) {
+                if (states.contains(MaterialState.selected)) {
+                  return Colors.grey[400];
+                }
+                return null;
+              }),
+        ),
+        iconTheme: const IconThemeData(color: Colors.white),
+        floatingActionButtonTheme: const FloatingActionButtonThemeData(
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+        ),
+        dialogTheme: const DialogTheme(
+          backgroundColor: Colors.black,
+          titleTextStyle: TextStyle(color: Colors.white),
+          contentTextStyle: TextStyle(color: Colors.white),
+        ),
+      );
+    }
+    return theme;
+  }
+
+  // Add back the getThemeByName method
   ThemeData getThemeByName(String name) {
     switch (name) {
       case 'Light Blue':
@@ -124,7 +242,7 @@ class ThemeProvider with ChangeNotifier {
       case 'Sunset':
         return sunsetTheme;
       default:
-        return lightTheme; // Default to light theme if not found
+        return lightTheme;
     }
   }
 }
