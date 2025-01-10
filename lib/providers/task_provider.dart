@@ -36,7 +36,8 @@ class TaskProvider with ChangeNotifier {
 
   Future<void> toggleTaskCompletion(
       String taskId, String userId, DateTime date) async {
-    Task task = _tasks.firstWhere((t) => t.id == taskId, orElse: () => Task(id: '', title: '', userId: '', isCompleted: false));
+    Task task = _tasks.firstWhere((t) => t.id == taskId,
+        orElse: () => Task(id: '', title: '', userId: '', isCompleted: false));
     if (task.id == null || task.id!.isEmpty) {
       print("Task not found in the list");
       return;

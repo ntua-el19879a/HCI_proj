@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:prioritize_it/providers/theme_provider.dart';
 
@@ -26,6 +27,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title: const Text('Dark Mode'),
                   value: themeProvider.isDarkMode,
                   onChanged: (value) {
+                    HapticFeedback.mediumImpact();
                     themeProvider.toggleDarkMode();
                   },
                 );

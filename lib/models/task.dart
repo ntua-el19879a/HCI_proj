@@ -32,9 +32,9 @@ class Task {
       'address': address,
       'latLngLocation': latLngLocation != null
           ? {
-        'latitude': latLngLocation!.latitude,
-        'longitude': latLngLocation!.longitude
-      }
+              'latitude': latLngLocation!.latitude,
+              'longitude': latLngLocation!.longitude
+            }
           : null,
     };
   }
@@ -46,13 +46,13 @@ class Task {
       title: map['title'],
       description: map['description'],
       date: map['date'] != null ? DateTime.parse(map['date']) : null,
-      isCompleted: map['isCompleted'] ?? false, // Default to false if null
+      isCompleted: map['isCompleted'] ?? false,
       address: map['address'],
       latLngLocation: map['latLngLocation'] != null
           ? LatLng(
-        map['latLngLocation']['latitude'],
-        map['latLngLocation']['longitude'],
-      )
+              map['latLngLocation']['latitude'],
+              map['latLngLocation']['longitude'],
+            )
           : null,
     );
   }

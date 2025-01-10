@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:prioritize_it/providers/auth_provider.dart';
 import 'package:prioritize_it/providers/task_provider.dart';
@@ -49,6 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _loadTasksForSelectedDate();
     });
   }
+
   bool _isPastDate() {
     final now = DateTime.now();
     return _selectedDate.isBefore(DateTime(now.year, now.month, now.day));
@@ -57,8 +59,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     String appBarTitle = _selectedDate.year == DateTime.now().year &&
-        _selectedDate.month == DateTime.now().month &&
-        _selectedDate.day == DateTime.now().day
+            _selectedDate.month == DateTime.now().month &&
+            _selectedDate.day == DateTime.now().day
         ? "Today"
         : DateFormat('yyyy-MM-dd').format(_selectedDate);
 
@@ -140,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
               title: const Text('Logout'),
               onTap: () async {
                 final authProvider =
-                Provider.of<CustomAuthProvider>(context, listen: false);
+                    Provider.of<CustomAuthProvider>(context, listen: false);
                 await authProvider.logOut();
                 Navigator.pushReplacementNamed(context, '/login');
               },
@@ -153,15 +155,15 @@ class _HomeScreenState extends State<HomeScreen> {
           final selectedTasks = taskProvider.tasks
               .where((task) => task.date != null)
               .where((task) =>
-          task.date!.year == _selectedDate.year &&
-              task.date!.month == _selectedDate.month &&
-              task.date!.day == _selectedDate.day)
+                  task.date!.year == _selectedDate.year &&
+                  task.date!.month == _selectedDate.month &&
+                  task.date!.day == _selectedDate.day)
               .toList();
 
           final currentTasks =
-          selectedTasks.where((task) => !task.isCompleted).toList();
+              selectedTasks.where((task) => !task.isCompleted).toList();
           final completedTasks =
-          selectedTasks.where((task) => task.isCompleted).toList();
+              selectedTasks.where((task) => task.isCompleted).toList();
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,7 +172,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: EdgeInsets.all(8.0),
                 child: Text('Current Tasks',
                     style:
-                    TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               ),
               Expanded(
                 child: ListView.builder(
@@ -179,6 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     final task = currentTasks[index];
                     return GestureDetector(
                       onTap: () {
+                        HapticFeedback.selectionClick();
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -201,14 +204,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                 ),
               ),
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text(
-                    'Completed Tasks',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text(
+                  'Completed Tasks',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-
+              ),
               Expanded(
                 child: ListView.builder(
                   itemCount: completedTasks.length,
@@ -216,6 +218,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     final task = completedTasks[index];
                     return GestureDetector(
                       onTap: () {
+                        HapticFeedback.selectionClick();
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -246,17 +249,17 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: _isPastDate()
           ? null
           : FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  AddTaskScreen(initialDate: _selectedDate),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        AddTaskScreen(initialDate: _selectedDate),
+                  ),
+                );
+              },
+              child: const Icon(Icons.add),
             ),
-          );
-        },
-        child: const Icon(Icons.add),
-      ),
     );
   }
 }

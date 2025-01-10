@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:prioritize_it/models/task.dart';
 import 'package:prioritize_it/providers/task_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 
 class TaskItem extends StatelessWidget {
   final Task task;
@@ -23,10 +24,9 @@ class TaskItem extends StatelessWidget {
     return ListTile(
       leading: Checkbox(
         value: task.isCompleted,
-        onChanged: isPastTask || isFutureTask
-            ? null
-            : (bool? newValue) {
+        onChanged: (bool? newValue) async {
           if (newValue != null) {
+            HapticFeedback.heavyImpact();
             Provider.of<TaskProvider>(context, listen: false)
                 .toggleTaskCompletion(task.id!, task.userId, task.date!);
           }
@@ -53,11 +53,15 @@ class TaskItem extends StatelessWidget {
           if (onEdit != null)
             IconButton(
               icon: const Icon(Icons.edit),
-              onPressed: onEdit,
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                onEdit!();
+              },
             ),
           IconButton(
             icon: const Icon(Icons.delete),
             onPressed: () {
+              HapticFeedback.lightImpact();
               Provider.of<TaskProvider>(context, listen: false)
                   .deleteTask(task.id!, task.userId, task.date!);
             },
