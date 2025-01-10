@@ -209,9 +209,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
 
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
+              Expanded(
+                child: ListView.builder(
                   itemCount: completedTasks.length,
                   itemBuilder: (context, index) {
                     final task = completedTasks[index];
@@ -224,23 +223,23 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         );
                       },
-    child: TaskItem(
-    task: task,
-    onEdit: () {
-          Navigator.push(
-          context,
-          MaterialPageRoute(
-          builder: (context) => AddTaskScreen(task: task),
-          ),
-          );
-
-
-          },
+                      child: TaskItem(
+                        task: task,
+                        onEdit: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AddTaskScreen(task: task),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
                 ),
-    );
-    },
-                ),
-              ],
+              ),
+              SizedBox(height: 80),
+            ],
           );
         },
       ),
