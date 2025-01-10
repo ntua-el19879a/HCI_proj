@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart'; // For reverse geocoding
+import 'package:intl/intl.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:prioritize_it/models/task.dart';
 import 'package:prioritize_it/providers/auth_provider.dart';
@@ -13,7 +15,8 @@ class AddTaskScreen extends StatefulWidget {
   final Task? task;
   final DateTime? initialDate;
 
-  const AddTaskScreen({Key? key, this.task, this.initialDate}) : super(key: key);
+  const AddTaskScreen({Key? key, this.task, this.initialDate})
+      : super(key: key);
 
   @override
   _AddTaskScreenState createState() => _AddTaskScreenState();
@@ -65,12 +68,23 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       if (placemarks.isNotEmpty) {
         Placemark placemark = placemarks.first;
         setState(() {
-          _selectedAddress = '${placemark.street}, ${placemark.locality}, ${placemark.country}';
+          _selectedAddress =
+          '${placemark.street}, ${placemark.locality}, ${placemark.country}';
         });
       }
     } catch (e) {
       debugPrint("Error getting address: $e");
     }
+  }
+
+  bool _isPastTask() {
+    if (widget.task == null || widget.task!.date == null) {
+      return false; // Not an existing task or no due date, so not a past task
+    }
+
+    final now = DateTime.now();
+    final taskDate = widget.task!.date!;
+    return taskDate.isBefore(DateTime(now.year, now.month, now.day));
   }
 
   void _submitData() async {
@@ -140,6 +154,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isPastTask = _isPastTask();
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.task == null ? 'Add Task' : 'Edit Task'),
@@ -154,6 +170,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 TextFormField(
                   controller: _titleController,
                   decoration: const InputDecoration(labelText: 'Title'),
+                  enabled: !isPastTask, // Disable if it's a past task
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter a title';
@@ -164,6 +181,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 TextFormField(
                   controller: _descriptionController,
                   decoration: const InputDecoration(labelText: 'Description'),
+                  enabled: !isPastTask,
                   maxLines: 1,
                 ),
                 const SizedBox(height: 20),
@@ -177,7 +195,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       ),
                     ),
                     TextButton(
-                      onPressed: () async {
+                      onPressed: isPastTask
+                          ? null
+                          : () async {
                         final pickedTime = await showTimePicker(
                           context: context,
                           initialTime: _selectedTime ?? TimeOfDay.now(),
@@ -202,7 +222,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       ),
                     ),
                     TextButton(
-                      onPressed: () async {
+                      onPressed: isPastTask
+                          ? null
+                          : () async {
                         final result = await Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -230,7 +252,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: _submitData,
+                  onPressed: isPastTask ? null : _submitData,
                   child: Text(widget.task == null ? 'Add Task' : 'Save Changes'),
                 ),
               ],

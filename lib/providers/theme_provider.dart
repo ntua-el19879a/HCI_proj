@@ -68,48 +68,26 @@ class ThemeProvider with ChangeNotifier {
   );
 
   ThemeData _currentTheme;
-  bool _isDarkMode;
   String _currentThemeName;
 
-  ThemeProvider(bool isDarkMode)
-      : _isDarkMode = isDarkMode,
-        _currentTheme = isDarkMode
-            ? ThemeData.dark()
-            : ThemeData
-            .light(), // Initialize _currentTheme in the constructor
-        _currentThemeName = isDarkMode ? 'Dark Indigo' : 'Light Blue' {
+  ThemeProvider()
+      : _currentTheme = ThemeData.light(),
+        _currentThemeName = 'Light Blue' {
     _loadInitialTheme();
   }
 
   ThemeData get currentTheme => _currentTheme;
-  bool get isDarkMode => _isDarkMode;
+
   String get currentThemeName => _currentThemeName;
-
-  void toggleTheme() async {
-    _isDarkMode = !_isDarkMode;
-    _currentTheme = _isDarkMode ? darkTheme : lightTheme;
-    _currentThemeName = _isDarkMode ? 'Dark Indigo' : 'Light Blue';
-    notifyListeners();
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isDarkMode', _isDarkMode);
-  }
 
   void setTheme(ThemeData theme, String themeName) async {
     _currentTheme = theme;
     _currentThemeName = themeName;
-    _isDarkMode =
-        theme.brightness == Brightness.dark;
     notifyListeners();
 
+    // Save the selected theme to SharedPreferences
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('selectedTheme', themeName);
-    await prefs.setBool('isDarkMode', _isDarkMode);
-  }
-
-  static Future<bool> loadThemePreference() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('isDarkMode') ?? false;
   }
 
   Future<void> _loadInitialTheme() async {
@@ -119,12 +97,9 @@ class ThemeProvider with ChangeNotifier {
     if (savedThemeName != null) {
       _currentThemeName = savedThemeName;
       _currentTheme = getThemeByName(savedThemeName);
-      _isDarkMode = _currentTheme.brightness == Brightness.dark;
     } else {
-      bool isDarkMode = prefs.getBool('isDarkMode') ?? false;
-      _currentTheme = isDarkMode ? darkTheme : lightTheme;
-      _currentThemeName = isDarkMode ? 'Dark Indigo' : 'Light Blue';
-      _isDarkMode = isDarkMode;
+      _currentTheme = lightTheme; // Default to light theme
+      _currentThemeName = 'Light Blue';
     }
 
     notifyListeners();
@@ -149,7 +124,7 @@ class ThemeProvider with ChangeNotifier {
       case 'Sunset':
         return sunsetTheme;
       default:
-        return lightTheme;
+        return lightTheme; // Default to light theme if not found
     }
   }
 }

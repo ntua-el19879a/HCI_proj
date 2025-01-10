@@ -13,19 +13,24 @@ class TaskItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
-    final isPastDate = task.date != null && task.date!.isBefore(now);
+    // Check if the task's due date is in the future
+    final isFutureTask = task.date != null && task.date!.isAfter(now);
+
+    // Check if the task's due date is in the past
+    final isPastTask = task.date != null &&
+        task.date!.isBefore(DateTime(now.year, now.month, now.day));
 
     return ListTile(
       leading: Checkbox(
         value: task.isCompleted,
-        onChanged: isPastDate || task.isCompleted
-            ? (bool? newValue) {
+        onChanged: isPastTask || isFutureTask
+            ? null
+            : (bool? newValue) {
           if (newValue != null) {
             Provider.of<TaskProvider>(context, listen: false)
                 .toggleTaskCompletion(task.id!, task.userId, task.date!);
           }
-        }
-            : null, // Disable checkbox for future tasks
+        },
       ),
       title: Text(task.title),
       subtitle: Column(

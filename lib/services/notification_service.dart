@@ -10,16 +10,16 @@ class NotificationService {
     AndroidInitializationSettings('@mipmap/ic_launcher');
 
     // iOS initialization (add settings if targeting iOS)
-    // final DarwinInitializationSettings initializationSettingsIOS =
-    //     DarwinInitializationSettings(
-    //         // ... (iOS-specific settings)
-    //     );
+     final DarwinInitializationSettings initializationSettingsIOS =
+         DarwinInitializationSettings(
+             // ... (iOS-specific settings)
+        );
 
     // Initialization settings
     final InitializationSettings initializationSettings =
     InitializationSettings(
       android: initializationSettingsAndroid,
-      // iOS: initializationSettingsIOS, // Uncomment if targeting iOS
+      iOS: initializationSettingsIOS, // Uncomment if targeting iOS
     );
 
     await _notificationsPlugin.initialize(initializationSettings);

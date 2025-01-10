@@ -6,7 +6,8 @@ class GoogleMapScreen extends StatefulWidget {
   final LatLng? initialLocation;
   final Function(LatLng)? onLocationSelected;
 
-  const GoogleMapScreen({Key? key, this.initialLocation, this.onLocationSelected})
+  const GoogleMapScreen(
+      {Key? key, this.initialLocation, this.onLocationSelected})
       : super(key: key);
 
   @override
@@ -15,13 +16,30 @@ class GoogleMapScreen extends StatefulWidget {
 
 class _GoogleMapScreenState extends State<GoogleMapScreen> {
   late GoogleMapController _mapController;
-  LatLng _currentPosition = LatLng(37.7749, -122.4194); // Default to San Francisco
+  LatLng _currentPosition = const LatLng(37.7749, -122.4194); // Default to San Francisco
   LatLng? _selectedLocation;
+  bool _locationFetched = false; // Flag to track if location has been fetched
 
   @override
   void initState() {
     super.initState();
-    _getCurrentLocation();
+    _requestLocationPermission(); // Request permissions on initialization
+  }
+
+  Future<void> _requestLocationPermission() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+    if (permission == LocationPermission.whileInUse ||
+        permission == LocationPermission.always) {
+      _getCurrentLocation();
+    } else {
+      // Handle the case where permission is not granted
+      setState(() {
+        _locationFetched = true; // Still update the flag to avoid infinite loading
+      });
+    }
   }
 
   Future<void> _getCurrentLocation() async {
@@ -30,14 +48,27 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
           desiredAccuracy: LocationAccuracy.high);
       setState(() {
         _currentPosition = LatLng(position.latitude, position.longitude);
+        _locationFetched = true; // Update flag after successful fetch
       });
     } catch (e) {
-      print('Error fetching location: $e');
+      debugPrint('Error fetching location: $e');
+      setState(() {
+        _locationFetched = true; // Update flag even if there's an error
+      });
     }
   }
 
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
+
+    // If the current location has already been fetched, update the camera position
+    if (_locationFetched) {
+      _mapController.animateCamera(
+        CameraUpdate.newLatLngZoom(_currentPosition, 14.0),
+      );
+    }
+
+    // If an initial location is provided, add a marker and move the camera
     if (widget.initialLocation != null) {
       _mapController.animateCamera(
         CameraUpdate.newLatLngZoom(widget.initialLocation!, 14.0),
@@ -58,24 +89,25 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Select Location'),
+        title: const Text('Select Location'),
         actions: [
           IconButton(
-            icon: Icon(Icons.check),
+            icon: const Icon(Icons.check),
             onPressed: () {
               if (_selectedLocation != null) {
                 widget.onLocationSelected?.call(_selectedLocation!);
                 Navigator.pop(context);
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Please select a location')),
+                  const SnackBar(content: Text('Please select a location')),
                 );
               }
             },
           )
         ],
       ),
-      body: GoogleMap(
+      body: _locationFetched
+          ? GoogleMap(
         onMapCreated: _onMapCreated,
         initialCameraPosition: CameraPosition(
           target: _currentPosition,
@@ -87,12 +119,13 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
         markers: _selectedLocation != null
             ? {
           Marker(
-            markerId: MarkerId('selected_location'),
+            markerId: const MarkerId('selected_location'),
             position: _selectedLocation!,
           ),
         }
             : {},
-      ),
+      )
+          : const Center(child: CircularProgressIndicator()),
     );
   }
 }
