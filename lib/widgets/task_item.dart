@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:prioritize_it/models/task.dart';
 import 'package:prioritize_it/providers/task_provider.dart';
+import 'package:prioritize_it/providers/theme_provider.dart';
+import 'package:prioritize_it/utils/themes.dart';
 import 'package:provider/provider.dart';
 
 class TaskItem extends StatelessWidget {
@@ -13,6 +15,7 @@ class TaskItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AppTheme theme = Provider.of<ThemeProvider>(context).currentTheme;
     final now = DateTime.now();
     // Check if the task's due date is in the future
     final isFutureTask = task.date != null && task.date!.isAfter(now);
@@ -24,9 +27,11 @@ class TaskItem extends StatelessWidget {
     return ListTile(
       leading: Checkbox(
         value: task.isCompleted,
+        activeColor: theme.primary,
+        checkColor: theme.primaryText,
         onChanged: (bool? newValue) async {
           if (newValue != null) {
-            HapticFeedback.heavyImpact();
+            HapticFeedback.lightImpact();
             Provider.of<TaskProvider>(context, listen: false)
                 .toggleTaskCompletion(task.id!, task.userId, task.date!);
           }

@@ -5,6 +5,7 @@ import 'package:prioritize_it/providers/auth_provider.dart';
 import 'package:prioritize_it/services/database_service.dart';
 import 'package:prioritize_it/services/notification_service.dart';
 import 'package:prioritize_it/utils/theme_mode_type.dart';
+import 'package:prioritize_it/utils/theme_name.dart';
 import 'package:prioritize_it/utils/themes.dart';
 import 'package:provider/provider.dart';
 import 'app.dart';
@@ -47,9 +48,9 @@ void main() async {
         }),
         ChangeNotifierProvider(
           create: (_) => ThemeProvider(
-            initialMode: ThemeModeType.light,
-            initialTheme: greenTheme,
-          ),
+              initialMode: ThemeModeType.light,
+              initialTheme: greenTheme,
+              initialName: ThemeName.green),
         ),
         ChangeNotifierProvider(create: (context) => CustomAuthProvider(db)),
         // ... other providers

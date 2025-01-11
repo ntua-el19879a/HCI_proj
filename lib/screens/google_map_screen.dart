@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:prioritize_it/widgets/styled_app_bar.dart';
 
 class GoogleMapScreen extends StatefulWidget {
   final LatLng? initialLocation;
@@ -16,7 +17,8 @@ class GoogleMapScreen extends StatefulWidget {
 
 class _GoogleMapScreenState extends State<GoogleMapScreen> {
   late GoogleMapController _mapController;
-  LatLng _currentPosition = const LatLng(37.7749, -122.4194); // Default to San Francisco
+  LatLng _currentPosition =
+      const LatLng(37.7749, -122.4194); // Default to San Francisco
   LatLng? _selectedLocation;
   bool _locationFetched = false; // Flag to track if location has been fetched
 
@@ -37,7 +39,8 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
     } else {
       // Handle the case where permission is not granted
       setState(() {
-        _locationFetched = true; // Still update the flag to avoid infinite loading
+        _locationFetched =
+            true; // Still update the flag to avoid infinite loading
       });
     }
   }
@@ -88,8 +91,8 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Select Location'),
+      appBar: StyledAppBar(
+        title: 'Select Location',
         actions: [
           IconButton(
             icon: const Icon(Icons.check),
@@ -108,23 +111,23 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
       ),
       body: _locationFetched
           ? GoogleMap(
-        onMapCreated: _onMapCreated,
-        initialCameraPosition: CameraPosition(
-          target: _currentPosition,
-          zoom: 14.0,
-        ),
-        myLocationEnabled: true,
-        myLocationButtonEnabled: true,
-        onTap: _onTap,
-        markers: _selectedLocation != null
-            ? {
-          Marker(
-            markerId: const MarkerId('selected_location'),
-            position: _selectedLocation!,
-          ),
-        }
-            : {},
-      )
+              onMapCreated: _onMapCreated,
+              initialCameraPosition: CameraPosition(
+                target: _currentPosition,
+                zoom: 14.0,
+              ),
+              myLocationEnabled: true,
+              myLocationButtonEnabled: true,
+              onTap: _onTap,
+              markers: _selectedLocation != null
+                  ? {
+                      Marker(
+                        markerId: const MarkerId('selected_location'),
+                        position: _selectedLocation!,
+                      ),
+                    }
+                  : {},
+            )
           : const Center(child: CircularProgressIndicator()),
     );
   }

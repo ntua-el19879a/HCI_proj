@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:prioritize_it/providers/auth_provider.dart';
+import 'package:prioritize_it/widgets/buttons/styeld_elevated_button.dart';
+import 'package:prioritize_it/widgets/buttons/styled_text_button.dart';
 import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -48,8 +50,8 @@ class _LoginScreenState extends State<LoginScreen> {
             obscureText: true,
           ),
           SizedBox(height: 20),
-          ElevatedButton(onPressed: login, child: Text('Login')),
-          TextButton(
+          StyledElevatedButton(onPressed: login, child: Text('Login')),
+          StyledTextButton(
               onPressed: widget.toggle,
               child: Text('Don\'t have an account? Register')),
         ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prioritize_it/providers/user_provider.dart';
+import 'package:prioritize_it/utils/app_constants.dart';
 import 'package:prioritize_it/widgets/base_layout.dart';
 import 'package:provider/provider.dart';
 
@@ -9,7 +10,7 @@ class StreakScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BaseLayout(
-        title: const Text('Your Streaks'),
+        title: STREAKS_TITLE,
         body: Consumer<UserProvider>(
           builder: (context, userProvider, child) {
             // Check if user data is still loading

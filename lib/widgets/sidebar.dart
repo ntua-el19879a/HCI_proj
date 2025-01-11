@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:prioritize_it/models/user.dart';
 import 'package:prioritize_it/providers/auth_provider.dart';
+import 'package:prioritize_it/providers/theme_provider.dart';
+import 'package:prioritize_it/utils/app_constants.dart';
 import 'package:provider/provider.dart';
 
 class Sidebar extends StatelessWidget {
@@ -7,72 +10,100 @@ class Sidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<CustomAuthProvider>(context);
+    final User? currentUser = authProvider.currentUser;
+    final currentTheme = Provider.of<ThemeProvider>(context).currentTheme;
+
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          const DrawerHeader(
+          DrawerHeader(
             decoration: BoxDecoration(
-              color: Colors.blue,
+              color: currentTheme.primary,
             ),
-            child: Text(
-              'Prioritize-It',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  APP_NAME,
+                  style: TextStyle(
+                    color: currentTheme.primaryText,
+                    fontSize: 24,
+                  ),
+                ),
+                Spacer(),
+                if (currentUser != null)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        currentUser.name,
+                        style: TextStyle(
+                          color: currentTheme.primaryText,
+                          fontSize: 16,
+                        ),
+                      ),
+                      Text(
+                        currentUser.email,
+                        style: TextStyle(
+                          color: currentTheme.primaryText,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
             ),
           ),
           ListTile(
-            leading: const Icon(Icons.home),
-            title: const Text('Home'),
+            leading: Icon(Icons.home),
+            title: Text(HOME_TITLE),
             onTap: () {
               Navigator.pop(context);
               Navigator.pushReplacementNamed(context, '/');
             },
           ),
           ListTile(
-            leading: const Icon(Icons.calendar_today),
-            title: const Text('Calendar'),
+            leading: Icon(Icons.calendar_today),
+            title: Text(CALENDAR_TITLE),
             onTap: () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/calendar');
             },
           ),
           ListTile(
-            leading: const Icon(Icons.color_lens),
-            title: const Text('Themes'),
+            leading: Icon(Icons.color_lens),
+            title: Text(THEMES_TITLE),
             onTap: () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/themes');
             },
           ),
           ListTile(
-            leading: const Icon(Icons.star),
-            title: const Text('Streaks'),
+            leading: Icon(Icons.star),
+            title: Text(STREAKS_TITLE),
             onTap: () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/streak');
             },
           ),
           ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('Settings'),
+            leading: Icon(Icons.settings),
+            title: Text(SETTINGS_TITLE),
             onTap: () {
               Navigator.pop(context);
               Navigator.pushNamed(context, '/settings');
             },
           ),
           ListTile(
-            leading: const Icon(Icons.logout),
-            title: const Text('Logout'),
+            leading: Icon(Icons.logout),
+            title: Text(LOGOUT_TITLE),
             onTap: () async {
-              final authProvider =
-                  Provider.of<CustomAuthProvider>(context, listen: false);
               await authProvider.logOut();
               Navigator.pushReplacementNamed(context, '/login');
             },
-          )
+          ),
         ],
       ),
     );

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:prioritize_it/utils/app_constants.dart';
 import 'package:prioritize_it/widgets/base_layout.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:prioritize_it/screens/home_screen.dart';
+import 'package:prioritize_it/providers/theme_provider.dart';
+import 'package:prioritize_it/utils/themes.dart';
+import 'package:provider/provider.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
@@ -17,11 +21,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
+    AppTheme theme = Provider.of<ThemeProvider>(context).currentTheme;
+
     return BaseLayout(
-        title: const Text('Calendar'),
+        title: CALENDAR_TITLE,
         body: TableCalendar(
           firstDay: DateTime.utc(2010, 10, 16),
           lastDay: DateTime.utc(2030, 3, 14),
+          calendarStyle: CalendarStyle(
+              todayDecoration:
+                  BoxDecoration(color: theme.primary, shape: BoxShape.circle)),
           focusedDay: _focusedDay,
           calendarFormat: _calendarFormat,
           selectedDayPredicate: (day) {

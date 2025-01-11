@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:prioritize_it/screens/login_screen.dart';
 import 'package:prioritize_it/screens/register_screen.dart';
+import 'package:prioritize_it/utils/app_constants.dart';
+import 'package:prioritize_it/widgets/styled_app_bar.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -15,7 +17,7 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(isLogin ? 'Login' : 'Register')),
+      appBar: StyledAppBar(title: isLogin ? LOGIN_TITLE : REGISTER_TITLE),
       body: isLogin
           ? LoginScreen(toggle: toggle)
           : RegisterScreen(toggle: toggle),

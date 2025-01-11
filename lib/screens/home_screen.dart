@@ -6,6 +6,7 @@ import 'package:prioritize_it/providers/task_provider.dart';
 import 'package:prioritize_it/providers/theme_provider.dart';
 import 'package:prioritize_it/screens/add_task_screen.dart';
 import 'package:prioritize_it/screens/task_detail_screen.dart';
+import 'package:prioritize_it/utils/app_constants.dart';
 import 'package:prioritize_it/utils/themes.dart';
 import 'package:prioritize_it/widgets/base_layout.dart';
 import 'package:prioritize_it/widgets/task_item.dart';
@@ -78,20 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
         : DateFormat('yyyy-MM-dd').format(_selectedDate);
 
     return BaseLayout(
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back_ios),
-            onPressed: () => _changeDate(-1),
-          ),
-          Text(appBarTitle, style: const TextStyle(fontSize: 20)),
-          IconButton(
-            icon: const Icon(Icons.arrow_forward_ios),
-            onPressed: () => _changeDate(1),
-          ),
-        ],
-      ),
+      title: HOME_TITLE,
       body: Consumer<TaskProvider>(
         builder: (context, taskProvider, child) {
           final selectedTasks = taskProvider.tasks
@@ -108,8 +96,22 @@ class _HomeScreenState extends State<HomeScreen> {
               selectedTasks.where((task) => task.isCompleted).toList();
 
           return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_ios),
+                    onPressed: () => _changeDate(-1),
+                  ),
+                  Text(appBarTitle, style: const TextStyle(fontSize: 20)),
+                  IconButton(
+                    icon: const Icon(Icons.arrow_forward_ios),
+                    onPressed: () => _changeDate(1),
+                  ),
+                ],
+              ),
               const Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Text('Current Tasks',

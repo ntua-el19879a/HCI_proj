@@ -4,17 +4,22 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:prioritize_it/models/task.dart';
 import 'package:prioritize_it/providers/auth_provider.dart';
 import 'package:prioritize_it/providers/task_provider.dart';
+import 'package:prioritize_it/providers/theme_provider.dart';
 import 'package:prioritize_it/providers/user_provider.dart';
 import 'package:prioritize_it/screens/google_map_screen.dart';
 import 'package:prioritize_it/services/notification_service.dart';
+import 'package:prioritize_it/utils/app_constants.dart';
+import 'package:prioritize_it/utils/themes.dart';
+import 'package:prioritize_it/widgets/buttons/styeld_elevated_button.dart';
+import 'package:prioritize_it/widgets/buttons/styled_text_button.dart';
+import 'package:prioritize_it/widgets/styled_app_bar.dart';
 import 'package:provider/provider.dart';
 
 class AddTaskScreen extends StatefulWidget {
   final Task? task;
   final DateTime? initialDate;
 
-  const AddTaskScreen({Key? key, this.task, this.initialDate})
-      : super(key: key);
+  const AddTaskScreen({super.key, this.task, this.initialDate});
 
   @override
   _AddTaskScreenState createState() => _AddTaskScreenState();
@@ -153,11 +158,11 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   @override
   Widget build(BuildContext context) {
     final isPastTask = _isPastTask();
+    AppTheme currentTheme = Provider.of<ThemeProvider>(context).currentTheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.task == null ? 'Add Task' : widget.task!.title),
-      ),
+      appBar: StyledAppBar(
+          title: widget.task == null ? NEW_TASK_TITLE : widget.task!.title),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -192,14 +197,29 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                             : 'Time: ${_selectedTime!.format(context)}',
                       ),
                     ),
-                    TextButton(
+                    StyledTextButton(
                       onPressed: isPastTask
                           ? null
                           : () async {
                               final pickedTime = await showTimePicker(
-                                context: context,
-                                initialTime: _selectedTime ?? TimeOfDay.now(),
-                              );
+                                  context: context,
+                                  initialTime: _selectedTime ?? TimeOfDay.now(),
+                                  builder:
+                                      (BuildContext context, Widget? child) {
+                                    return Theme(
+                                      data: Theme.of(context).copyWith(
+                                        // Customize the color scheme
+                                        colorScheme: ColorScheme.light(
+                                            primary: currentTheme.primary),
+                                        textButtonTheme: TextButtonThemeData(
+                                          style: TextButton.styleFrom(
+                                              foregroundColor:
+                                                  currentTheme.primary),
+                                        ),
+                                      ),
+                                      child: child!,
+                                    );
+                                  });
                               if (pickedTime != null) {
                                 setState(() {
                                   _selectedTime = pickedTime;
@@ -219,7 +239,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                             : 'Location: $_selectedAddress',
                       ),
                     ),
-                    TextButton(
+                    StyledTextButton(
                       onPressed: isPastTask
                           ? null
                           : () async {
@@ -250,7 +270,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   ],
                 ),
                 const SizedBox(height: 20),
-                ElevatedButton(
+                StyledElevatedButton(
                   onPressed: isPastTask ? null : _submitData,
                   child:
                       Text(widget.task == null ? 'Add Task' : 'Save Changes'),

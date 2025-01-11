@@ -1,95 +1,82 @@
 import 'package:flutter/material.dart';
 import 'package:prioritize_it/utils/theme_mode_type.dart';
+import 'package:prioritize_it/utils/theme_name.dart';
 import 'package:prioritize_it/utils/themes.dart';
 
 class ThemeProvider extends ChangeNotifier {
   ThemeModeType mode;
   AppTheme _currentTheme;
+  ThemeName themeName;
 
   ThemeProvider({
     required ThemeModeType initialMode,
     required AppTheme initialTheme,
+    required ThemeName initialName,
   })  : mode = initialMode,
+        themeName = initialName,
         _currentTheme = initialTheme;
 
   AppTheme get currentTheme => _currentTheme;
 
   void switchMode(ThemeModeType newMode) {
     mode = newMode;
-    switchTheme(currentTheme);
+    switchTheme(themeName);
   }
 
-  void _swithToDarkTheme(AppTheme newTheme) {
-    if (newTheme == blueTheme) {
+  void _swithToDarkTheme(ThemeName newThemeName) {
+    if (newThemeName == ThemeName.blue) {
       _currentTheme = darkBlueTheme;
-      return;
     }
-    if (newTheme == greenTheme) {
+    if (newThemeName == ThemeName.green) {
       _currentTheme = darkGreenTheme;
-      return;
     }
-    if (newTheme == redTheme) {
+    if (newThemeName == ThemeName.red) {
       _currentTheme = darkRedTheme;
-      return;
     }
-    if (newTheme == spaceTheme) {
+    if (newThemeName == ThemeName.space) {
       _currentTheme = darkSpaceTheme;
-      return;
     }
-    if (newTheme == royalTheme) {
+    if (newThemeName == ThemeName.royal) {
       _currentTheme = darkRoyalTheme;
-      return;
     }
-    if (newTheme == oceanTheme) {
+    if (newThemeName == ThemeName.ocean) {
       _currentTheme = darkOceanTheme;
-      return;
     }
-    if (newTheme == sunsetTheme) {
+    if (newThemeName == ThemeName.sunset) {
       _currentTheme = darkSunsetTheme;
-      return;
     }
-    // The below should not be reached.
-    _currentTheme = newTheme;
   }
 
-  void _switchToLightTheme(AppTheme newTheme) {
-    if (newTheme == darkBlueTheme) {
+  void _switchToLightTheme(ThemeName newThemeName) {
+    if (newThemeName == ThemeName.blue) {
       _currentTheme = blueTheme;
-      return;
     }
-    if (newTheme == darkGreenTheme) {
+    if (newThemeName == ThemeName.green) {
       _currentTheme = greenTheme;
-      return;
     }
-    if (newTheme == darkRedTheme) {
+    if (newThemeName == ThemeName.red) {
       _currentTheme = redTheme;
-      return;
     }
-    if (newTheme == darkSpaceTheme) {
+    if (newThemeName == ThemeName.space) {
       _currentTheme = spaceTheme;
-      return;
     }
-    if (newTheme == darkRoyalTheme) {
+    if (newThemeName == ThemeName.royal) {
       _currentTheme = royalTheme;
-      return;
     }
-    if (newTheme == darkOceanTheme) {
+    if (newThemeName == ThemeName.ocean) {
       _currentTheme = oceanTheme;
-      return;
     }
-    if (newTheme == darkSunsetTheme) {
+    if (newThemeName == ThemeName.sunset) {
       _currentTheme = sunsetTheme;
-      return;
     }
-    // The below should not be reached.
-    _currentTheme = newTheme;
   }
 
-  void switchTheme(AppTheme newTheme) {
+  void switchTheme(ThemeName newThemeName) {
+    themeName = newThemeName;
     if (mode == ThemeModeType.dark) {
-      _swithToDarkTheme(newTheme);
+      _swithToDarkTheme(newThemeName);
     } else {
-      _switchToLightTheme(newTheme);
+      _switchToLightTheme(newThemeName);
     }
     notifyListeners();
   }

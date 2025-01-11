@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:prioritize_it/models/task.dart';
 import 'package:intl/intl.dart';
+import 'package:prioritize_it/models/task.dart';
+import 'package:prioritize_it/widgets/styled_app_bar.dart';
 
 class TaskDetailScreen extends StatelessWidget {
   final Task task;
 
-  const TaskDetailScreen({Key? key, required this.task}) : super(key: key);
+  const TaskDetailScreen({super.key, required this.task});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Task Details'),
+      appBar: StyledAppBar(
+        title: 'Task Details',
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:prioritize_it/providers/auth_provider.dart';
+import 'package:prioritize_it/widgets/buttons/styeld_elevated_button.dart';
+import 'package:prioritize_it/widgets/buttons/styled_text_button.dart';
 import 'package:provider/provider.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -89,8 +91,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
               },
             ),
             SizedBox(height: 20),
-            ElevatedButton(onPressed: register, child: Text('Register')),
-            TextButton(
+            StyledElevatedButton(onPressed: register, child: Text('Register')),
+            StyledTextButton(
                 onPressed: widget.toggle,
                 child: Text('Already have an account? Login')),
           ],
