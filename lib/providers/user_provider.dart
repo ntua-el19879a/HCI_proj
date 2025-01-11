@@ -28,10 +28,14 @@ class UserProvider with ChangeNotifier {
     }
     await _checkStreak();
 
+    // Fetch the number of completed tasks from the database
+    if (_user != null && _user!.id != null) {
+      _user!.completedTasks = await dbService.getCompletedTasksCount(_user!.id!);
+    }
+
     _isLoading = false;
     notifyListeners();
   }
-
 
   Future<void> updateUser(User updatedUser) async {
     await dbService.updateUser(updatedUser);
@@ -43,9 +47,18 @@ class UserProvider with ChangeNotifier {
     if (_user != null) {
       _user!.addPoints(pointsAwarded);
       _user!.incrementCompletedTasks();
-      await _updateStreak(); // Update streak data
-      await dbService.updateUser(_user!); // Update in database
-      notifyListeners(); // Notify after updating
+      await _updateStreak();
+      await dbService.updateUser(_user!);
+      notifyListeners();
+    }
+  }
+
+  Future<void> handleTaskUncompletion() async {
+    if (_user != null && _user!.completedTasks > 0) {
+      _user!.deductPoints(30);
+      _user!.decrementCompletedTasks();
+      await dbService.updateUser(_user!);
+      notifyListeners();
     }
   }
 
@@ -60,6 +73,15 @@ class UserProvider with ChangeNotifier {
   Future<void> _checkStreak() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? lastActivityDate = prefs.getString('lastActivityDate');
+    bool isFirstTask = prefs.getBool('isFirstTask') ??
+        true; // Check if it's the first task today
+
+    if (isFirstTask) {
+      // Award points for the first task of the day
+      _user?.addPoints(30); // 30 points for the first task
+      await dbService.updateUser(_user!);
+      await prefs.setBool('isFirstTask', false);
+    }
 
     if (lastActivityDate != null) {
       DateTime lastDate = DateTime.parse(lastActivityDate);
@@ -88,8 +110,20 @@ class UserProvider with ChangeNotifier {
 
   Future<void> handleTaskAdded() async {
     if (_user != null) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      bool isFirstTask = prefs.getBool('isFirstTask') ?? true;
+
+      // Check if it's the first task of the day
+      if (isFirstTask) {
+        // Award points for the first task of the day
+        _user!.addPoints(30); // 30 points for the first task
+        await prefs.setBool('isFirstTask', false);
+      } else {
+        _user!.addPoints(10);
+      }
+      // Update streak and user in the database
       await _updateStreak();
-      await dbService.updateUser(_user!); // Update in database
+      await dbService.updateUser(_user!);
       notifyListeners(); // Notify after updating
     }
   }

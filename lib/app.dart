@@ -1,3 +1,5 @@
+//app.dart
+
 import 'package:flutter/material.dart';
 import 'package:prioritize_it/providers/auth_provider.dart';
 import 'package:prioritize_it/providers/theme_provider.dart';

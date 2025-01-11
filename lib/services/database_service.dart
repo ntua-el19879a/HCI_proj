@@ -50,7 +50,8 @@ class DatabaseService {
   // Get tasks for a specific date
   Future<List<Task>> getTasksForDate(String userId, DateTime date) async {
     final startOfDay = DateTime(date.year, date.month, date.day).toUtc();
-    final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59, 999).toUtc();
+    final endOfDay =
+    DateTime(date.year, date.month, date.day, 23, 59, 59, 999).toUtc();
 
     final querySnapshot = await _database
         .collection(_tasksCollection)
@@ -81,8 +82,19 @@ class DatabaseService {
       throw e;
     }
   }
+
   // Delete a task
   Future<void> deleteTask(String taskId) async {
     await _database.collection(_tasksCollection).doc(taskId).delete();
+  }
+
+  Future<int> getCompletedTasksCount(String userId) async {
+    final querySnapshot = await _database
+        .collection(_tasksCollection)
+        .where('userId', isEqualTo: userId)
+        .where('isCompleted', isEqualTo: true)
+        .get();
+
+    return querySnapshot.docs.length;
   }
 }

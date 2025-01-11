@@ -1,3 +1,5 @@
+//task_item.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -6,6 +8,7 @@ import 'package:prioritize_it/providers/task_provider.dart';
 import 'package:prioritize_it/providers/theme_provider.dart';
 import 'package:prioritize_it/utils/themes.dart';
 import 'package:provider/provider.dart';
+import 'package:prioritize_it/providers/user_provider.dart';
 
 class TaskItem extends StatelessWidget {
   final Task task;
@@ -29,13 +32,23 @@ class TaskItem extends StatelessWidget {
         value: task.isCompleted,
         activeColor: theme.primary,
         checkColor: theme.primaryText,
-        onChanged: (bool? newValue) async {
-          if (newValue != null) {
-            HapticFeedback.lightImpact();
-            Provider.of<TaskProvider>(context, listen: false)
-                .toggleTaskCompletion(task.id!, task.userId, task.date!);
-          }
-        },
+        onChanged: isPastTask || isFutureTask
+            ? null
+            : (bool? newValue) {
+                if (newValue != null) {
+                  HapticFeedback.lightImpact();
+                  Provider.of<TaskProvider>(context, listen: false)
+                      .toggleTaskCompletion(task.id!, task.userId, task.date!);
+                  if (newValue) {
+                    Provider.of<UserProvider>(context, listen: false)
+                        .handleTaskCompletion(30);
+                  }
+                  else {
+                    Provider.of<UserProvider>(context, listen: false)
+                        .handleTaskUncompletion();
+                  }
+                }
+              },
       ),
       title: Text(task.title),
       subtitle: Column(
