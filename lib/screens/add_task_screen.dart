@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart'; // For reverse geocoding
-import 'package:intl/intl.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:prioritize_it/models/task.dart';
 import 'package:prioritize_it/providers/auth_provider.dart';
@@ -69,7 +67,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         Placemark placemark = placemarks.first;
         setState(() {
           _selectedAddress =
-          '${placemark.street}, ${placemark.locality}, ${placemark.country}';
+              '${placemark.street}, ${placemark.locality}, ${placemark.country}';
         });
       }
     } catch (e) {
@@ -158,7 +156,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.task == null ? 'Add Task' : 'Edit Task'),
+        title: Text(widget.task == null ? 'Add Task' : widget.task!.title),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -198,16 +196,16 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       onPressed: isPastTask
                           ? null
                           : () async {
-                        final pickedTime = await showTimePicker(
-                          context: context,
-                          initialTime: _selectedTime ?? TimeOfDay.now(),
-                        );
-                        if (pickedTime != null) {
-                          setState(() {
-                            _selectedTime = pickedTime;
-                          });
-                        }
-                      },
+                              final pickedTime = await showTimePicker(
+                                context: context,
+                                initialTime: _selectedTime ?? TimeOfDay.now(),
+                              );
+                              if (pickedTime != null) {
+                                setState(() {
+                                  _selectedTime = pickedTime;
+                                });
+                              }
+                            },
                       child: const Text('Choose Time'),
                     ),
                   ],
@@ -225,27 +223,28 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       onPressed: isPastTask
                           ? null
                           : () async {
-                        final result = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => GoogleMapScreen(
-                              initialLocation: _selectedLocation,
-                              onLocationSelected: (LatLng location) async {
+                              final result = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => GoogleMapScreen(
+                                    initialLocation: _selectedLocation,
+                                    onLocationSelected:
+                                        (LatLng location) async {
+                                      setState(() {
+                                        _selectedLocation = location;
+                                      });
+                                      await _getAddressFromLatLng(location);
+                                    },
+                                  ),
+                                ),
+                              );
+                              if (result != null) {
                                 setState(() {
-                                  _selectedLocation = location;
+                                  _selectedLocation = result;
                                 });
-                                await _getAddressFromLatLng(location);
-                              },
-                            ),
-                          ),
-                        );
-                        if (result != null) {
-                          setState(() {
-                            _selectedLocation = result;
-                          });
-                          await _getAddressFromLatLng(result);
-                        }
-                      },
+                                await _getAddressFromLatLng(result);
+                              }
+                            },
                       child: const Text('Select Location'),
                     ),
                   ],
@@ -253,7 +252,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: isPastTask ? null : _submitData,
-                  child: Text(widget.task == null ? 'Add Task' : 'Save Changes'),
+                  child:
+                      Text(widget.task == null ? 'Add Task' : 'Save Changes'),
                 ),
               ],
             ),

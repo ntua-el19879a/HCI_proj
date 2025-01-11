@@ -3,8 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:prioritize_it/providers/auth_provider.dart';
 import 'package:prioritize_it/providers/task_provider.dart';
+import 'package:prioritize_it/providers/theme_provider.dart';
 import 'package:prioritize_it/screens/add_task_screen.dart';
 import 'package:prioritize_it/screens/task_detail_screen.dart';
+import 'package:prioritize_it/utils/themes.dart';
+import 'package:prioritize_it/widgets/base_layout.dart';
 import 'package:prioritize_it/widgets/task_item.dart';
 import 'package:provider/provider.dart';
 
@@ -19,29 +22,39 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late DateTime _selectedDate;
-  late String? _currentUserId;
+  String? _currentUserId;
+  AppTheme? _currentTheme;
 
   @override
   void initState() {
     super.initState();
-    _currentUserId =
-        Provider.of<CustomAuthProvider>(context, listen: false).currentUser?.id;
     _selectedDate = widget.selectedDate ?? DateTime.now();
-    _loadTasksForSelectedDate();
   }
 
   @override
-  void didUpdateWidget(covariant HomeScreen oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.selectedDate != null && widget.selectedDate != _selectedDate) {
-      _selectedDate = widget.selectedDate!;
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Access providers in `didChangeDependencies`
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final authProvider =
+        Provider.of<CustomAuthProvider>(context, listen: false);
+
+    // Update current theme and user ID
+    _currentTheme = themeProvider.currentTheme;
+    _currentUserId = authProvider.currentUser?.id;
+
+    // Load tasks if user ID is available
+    if (_currentUserId != null) {
       _loadTasksForSelectedDate();
     }
   }
 
   void _loadTasksForSelectedDate() {
-    Provider.of<TaskProvider>(context, listen: false)
-        .loadTasksForDate(_currentUserId!, _selectedDate);
+    if (_currentUserId != null) {
+      Provider.of<TaskProvider>(context, listen: false)
+          .loadTasksForDate(_currentUserId!, _selectedDate);
+    }
   }
 
   void _changeDate(int days) {
@@ -64,91 +77,20 @@ class _HomeScreenState extends State<HomeScreen> {
         ? "Today"
         : DateFormat('yyyy-MM-dd').format(_selectedDate);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.arrow_back_ios),
-              onPressed: () => _changeDate(-1),
-            ),
-            Text(appBarTitle, style: const TextStyle(fontSize: 20)),
-            IconButton(
-              icon: const Icon(Icons.arrow_forward_ios),
-              onPressed: () => _changeDate(1),
-            ),
-          ],
-        ),
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Text(
-                'Prioritize-It',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.home),
-              title: const Text('Home'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.pushReplacementNamed(context, '/');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.calendar_today),
-              title: const Text('Calendar'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.pushNamed(context, '/calendar');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.color_lens),
-              title: const Text('Themes'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.pushNamed(context, '/themes');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.star),
-              title: const Text('Streaks'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.pushNamed(context, '/streak');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Settings'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.pushNamed(context, '/settings');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('Logout'),
-              onTap: () async {
-                final authProvider =
-                    Provider.of<CustomAuthProvider>(context, listen: false);
-                await authProvider.logOut();
-                Navigator.pushReplacementNamed(context, '/login');
-              },
-            )
-          ],
-        ),
+    return BaseLayout(
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back_ios),
+            onPressed: () => _changeDate(-1),
+          ),
+          Text(appBarTitle, style: const TextStyle(fontSize: 20)),
+          IconButton(
+            icon: const Icon(Icons.arrow_forward_ios),
+            onPressed: () => _changeDate(1),
+          ),
+        ],
       ),
       body: Consumer<TaskProvider>(
         builder: (context, taskProvider, child) {
@@ -249,6 +191,7 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: _isPastDate()
           ? null
           : FloatingActionButton(
+              backgroundColor: _currentTheme?.primary,
               onPressed: () {
                 Navigator.push(
                   context,
@@ -258,7 +201,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 );
               },
-              child: const Icon(Icons.add),
+              child: Icon(
+                Icons.add,
+                color: _currentTheme?.primaryText,
+              ),
             ),
     );
   }

@@ -4,6 +4,8 @@ import 'package:prioritize_it/providers/user_provider.dart';
 import 'package:prioritize_it/providers/auth_provider.dart';
 import 'package:prioritize_it/services/database_service.dart';
 import 'package:prioritize_it/services/notification_service.dart';
+import 'package:prioritize_it/utils/theme_mode_type.dart';
+import 'package:prioritize_it/utils/themes.dart';
 import 'package:provider/provider.dart';
 import 'app.dart';
 import 'package:prioritize_it/providers/theme_provider.dart';
@@ -43,7 +45,12 @@ void main() async {
           userProvider.loadUser(); // Load user data immediately
           return userProvider;
         }),
-        ChangeNotifierProvider(create: (context) => ThemeProvider()),
+        ChangeNotifierProvider(
+          create: (_) => ThemeProvider(
+            initialMode: ThemeModeType.light,
+            initialTheme: greenTheme,
+          ),
+        ),
         ChangeNotifierProvider(create: (context) => CustomAuthProvider(db)),
         // ... other providers
       ],

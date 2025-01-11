@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:prioritize_it/utils/themes.dart';
+import 'package:prioritize_it/widgets/base_layout.dart';
 import 'package:provider/provider.dart';
 import 'package:prioritize_it/providers/theme_provider.dart';
 import 'package:prioritize_it/providers/user_provider.dart';
@@ -12,36 +14,24 @@ class ThemesScreen extends StatelessWidget {
     final userProvider = Provider.of<UserProvider>(context);
     final userPoints = userProvider.user?.points ?? 0;
 
-    return Scaffold(
-      appBar: AppBar(
+    return BaseLayout(
         title: const Text('Themes'),
-      ),
-      body: ListView(
-        children: [
-          _buildThemeItem(context, 'Light Blue',
-              Provider.of<ThemeProvider>(context).lightTheme, 0),
-          _buildThemeItem(context, 'Dark Indigo',
-              Provider.of<ThemeProvider>(context).darkIndigoTheme, 0),
-          _buildThemeItem(context, 'Light Green',
-              Provider.of<ThemeProvider>(context).lightGreenTheme, 0),
-          _buildThemeItem(context, 'Dark Green',
-              Provider.of<ThemeProvider>(context).darkGreenTheme, 0),
-          _buildThemeItem(context, 'Space',
-              Provider.of<ThemeProvider>(context).spaceTheme, 150),
-          _buildThemeItem(context, 'Royal',
-              Provider.of<ThemeProvider>(context).royalTheme, 200),
-          _buildThemeItem(context, 'Ocean',
-              Provider.of<ThemeProvider>(context).oceanTheme, 300),
-          _buildThemeItem(context, 'Sunset',
-              Provider.of<ThemeProvider>(context).sunsetTheme, 350),
-          // Add more themes here
-        ],
-      ),
-    );
+        body: ListView(
+          children: [
+            _buildThemeItem(context, 'Green', greenTheme, 0),
+            _buildThemeItem(context, 'Blue', blueTheme, 0),
+            _buildThemeItem(context, 'Red', redTheme, 0),
+            _buildThemeItem(context, 'Space', spaceTheme, 200),
+            _buildThemeItem(context, 'Royal', royalTheme, 200),
+            _buildThemeItem(context, 'Ocean', oceanTheme, 300),
+            _buildThemeItem(context, 'Sunset', sunsetTheme, 350),
+            // Add more themes here
+          ],
+        ));
   }
 
   Widget _buildThemeItem(
-      BuildContext context, String name, ThemeData theme, int requiredPoints) {
+      BuildContext context, String name, AppTheme theme, int requiredPoints) {
     final userProvider = Provider.of<UserProvider>(context);
     final userPoints = userProvider.user?.points ?? 0;
     final isLocked = userPoints < requiredPoints;
@@ -52,7 +42,7 @@ class ThemesScreen extends StatelessWidget {
       subtitle: isLocked ? Text('Requires $requiredPoints points') : null,
       trailing: isLocked
           ? Icon(Icons.lock)
-          : themeProvider.currentThemeName == name
+          : themeProvider.currentTheme == theme
               ? Icon(Icons.check_circle,
                   color: Colors.green) // Show checkmark if selected
               : null,
@@ -60,10 +50,10 @@ class ThemesScreen extends StatelessWidget {
           ? null
           : () {
               HapticFeedback.selectionClick();
-              themeProvider.setTheme(theme, name);
+              themeProvider.switchTheme(theme);
             },
-      tileColor: themeProvider.currentThemeName == name
-          ? theme.primaryColor.withOpacity(0.5)
+      tileColor: themeProvider.currentTheme == theme
+          ? theme.primary.withOpacity(0.5)
           : null,
     );
   }
