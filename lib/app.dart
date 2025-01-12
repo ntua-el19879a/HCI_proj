@@ -57,7 +57,7 @@ class AuthWrapper extends StatelessWidget {
 
         return Consumer<CustomAuthProvider>(
           builder: (context, provider, _) {
-            if (provider.currentUser != null) {
+            if (provider.currentUserId != null) {
               return HomeScreen();
             } else {
               return AuthScreen();

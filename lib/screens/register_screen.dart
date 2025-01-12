@@ -23,6 +23,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> register() async {
     final authProvider =
         Provider.of<CustomAuthProvider>(context, listen: false);
+
     try {
       await authProvider.signUp(
         _emailController.text.trim(),

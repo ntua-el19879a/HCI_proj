@@ -3,7 +3,7 @@ import 'package:timezone/timezone.dart' as tz;
 
 class NotificationService {
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-  FlutterLocalNotificationsPlugin();
+      FlutterLocalNotificationsPlugin();
   static Future<void> onDidReceiveNotification(
       NotificationResponse notificationResponse) async {
     print("Notification receive");
@@ -12,10 +12,11 @@ class NotificationService {
   static Future<void> initialize() async {
     // Android initialization
     const AndroidInitializationSettings initializationSettingsAndroid =
-    AndroidInitializationSettings('ic_stat_app_icon');
+        AndroidInitializationSettings('ic_stat_app_icon');
 
     // iOS initialization (add settings if targeting iOS)
-    final DarwinInitializationSettings initializationSettingsIOS = DarwinInitializationSettings(
+    final DarwinInitializationSettings initializationSettingsIOS =
+        DarwinInitializationSettings(
       // ...
       notificationCategories: [
         DarwinNotificationCategory(
@@ -46,7 +47,7 @@ class NotificationService {
 
     // Initialization settings
     final InitializationSettings initializationSettings =
-    InitializationSettings(
+        InitializationSettings(
       android: initializationSettingsAndroid,
       iOS: initializationSettingsIOS, // Uncomment if targeting iOS
     );
@@ -58,7 +59,7 @@ class NotificationService {
 
     await flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>()
+            AndroidFlutterLocalNotificationsPlugin>()
         ?.requestPermission();
   }
 
@@ -102,40 +103,37 @@ class NotificationService {
         ),
       ),
       uiLocalNotificationDateInterpretation:
-      UILocalNotificationDateInterpretation.absoluteTime,
+          UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.dateAndTime,
     );
   }
 
-
   static Future<void> showNotification(
       {required int id,
-        required String title,
-        required String body,
-        String? payload}) async {
+      required String title,
+      required String body,
+      String? payload}) async {
     const AndroidNotificationDetails androidNotificationDetails =
-    AndroidNotificationDetails(
-        'your_channel_id', // Replace with your channel ID
-        'your_channel_name', // Replace with your channel name
-        channelDescription:
-        'your_channel_description', // Replace with your channel description
-        importance: Importance.max,
-        priority: Priority.high,
-        ticker: 'ticker');
+        AndroidNotificationDetails(
+            'your_channel_id', // Replace with your channel ID
+            'your_channel_name', // Replace with your channel name
+            channelDescription:
+                'your_channel_description', // Replace with your channel description
+            importance: Importance.max,
+            priority: Priority.high,
+            ticker: 'ticker');
     const DarwinNotificationDetails iosNotifications =
-    DarwinNotificationDetails(
+        DarwinNotificationDetails(
       presentAlert: true,
       interruptionLevel: InterruptionLevel.critical,
     );
 
     const NotificationDetails notificationDetails =
-    NotificationDetails(android: androidNotificationDetails);
+        NotificationDetails(android: androidNotificationDetails);
     // const NotificationDetails notificationDetails =
     // NotificationDetails(iOS: iosNotifications);
 
-    await flutterLocalNotificationsPlugin.show(id, title, body, notificationDetails,
-        payload: payload);
+    await flutterLocalNotificationsPlugin
+        .show(id, title, body, notificationDetails, payload: payload);
   }
-
-// Add more methods for scheduling notifications, cancelling notifications, etc.
 }

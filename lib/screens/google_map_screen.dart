@@ -10,8 +10,7 @@ class GoogleMapScreen extends StatefulWidget {
   final Function(LatLng)? onLocationSelected;
 
   const GoogleMapScreen(
-      {Key? key, this.initialLocation, this.onLocationSelected})
-      : super(key: key);
+      {super.key, this.initialLocation, this.onLocationSelected});
 
   @override
   _GoogleMapScreenState createState() => _GoogleMapScreenState();

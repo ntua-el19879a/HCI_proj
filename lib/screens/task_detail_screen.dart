@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:prioritize_it/models/task.dart';
-import 'package:prioritize_it/widgets/styled_app_bar.dart';
 
 class TaskDetailScreen extends StatelessWidget {
   final Task task;
@@ -10,7 +9,8 @@ class TaskDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView( // Wrap with SingleChildScrollView
+    return SingleChildScrollView(
+      // Wrap with SingleChildScrollView
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

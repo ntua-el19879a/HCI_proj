@@ -101,8 +101,8 @@ final AppTheme tealTheme = AppTheme(
   ),
   primary: Colors.tealAccent,
   secondary: Colors.white,
-  primaryText: Colors.white,
-  secondaryText: Colors.white70,
+  primaryText: Colors.black,
+  secondaryText: Colors.black54,
 );
 
 final AppTheme royalTheme = AppTheme(
@@ -120,13 +120,13 @@ final AppTheme royalTheme = AppTheme(
 
 final AppTheme oceanTheme = AppTheme(
   themeData: ThemeData(
-    primarySwatch: Colors.blue,
+    primarySwatch: Colors.indigo,
     brightness: Brightness.light,
     scaffoldBackgroundColor:
         lightBackgroundColor, // Use shared light background
   ),
-  primary: Colors.blue,
-  secondary: Colors.lightBlueAccent,
+  primary: Colors.indigo,
+  secondary: Colors.indigoAccent,
   primaryText: Colors.black87,
   secondaryText: Colors.black54,
 );
@@ -149,7 +149,6 @@ final AppTheme darkTealTheme = AppTheme(
     scaffoldBackgroundColor: darkBackgroundColor, // Use shared dark background
     brightness: Brightness.dark,
     primarySwatch: Colors.teal,
-
   ),
   primary: Colors.teal,
   secondary: Colors.tealAccent,
@@ -162,7 +161,6 @@ final AppTheme darkRoyalTheme = AppTheme(
     primarySwatch: Colors.deepPurple,
     brightness: Brightness.dark,
     scaffoldBackgroundColor: darkBackgroundColor, // Use shared dark background
-
   ),
   primary: Colors.deepPurple,
   secondary: Colors.deepPurpleAccent,
@@ -172,12 +170,12 @@ final AppTheme darkRoyalTheme = AppTheme(
 
 final AppTheme darkOceanTheme = AppTheme(
   themeData: ThemeData(
-    primarySwatch: Colors.blue,
+    primarySwatch: Colors.indigo,
     brightness: Brightness.dark,
     scaffoldBackgroundColor: darkBackgroundColor, // Use shared dark background
   ),
-  primary: Colors.blue,
-  secondary: Colors.lightBlueAccent,
+  primary: Colors.indigo,
+  secondary: Colors.indigoAccent,
   primaryText: Colors.white,
   secondaryText: Colors.white70,
 );

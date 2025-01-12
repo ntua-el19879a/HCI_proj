@@ -2,26 +2,38 @@ import 'package:bcrypt/bcrypt.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fbAuth;
 import 'package:flutter/material.dart';
 import 'package:prioritize_it/models/user.dart';
+import 'package:prioritize_it/providers/user_provider.dart';
 import 'package:prioritize_it/services/database_service.dart';
+import 'package:prioritize_it/utils/theme_name.dart';
 
 class CustomAuthProvider with ChangeNotifier {
   final fbAuth.FirebaseAuth _firebaseAuth;
   final DatabaseService _databaseService;
-  User? _currentUser;
+  final UserProvider userProvider;
+  String? _currentUserId;
 
   CustomAuthProvider(
-      this._databaseService, {
-        fbAuth.FirebaseAuth? firebaseAuth,
-      }) : _firebaseAuth = firebaseAuth ?? fbAuth.FirebaseAuth.instance;
+    this._databaseService,
+    this.userProvider, {
+    fbAuth.FirebaseAuth? firebaseAuth,
+  }) : _firebaseAuth = firebaseAuth ?? fbAuth.FirebaseAuth.instance;
 
-  User? get currentUser => _currentUser;
+  String? get currentUserId => _currentUserId;
+
+  Future<void> getUser() async {
+    userProvider.user = await _databaseService.getUserById(currentUserId ?? '');
+    notifyListeners();
+  }
 
   Future<void> checkUserLoggedIn() async {
     final fbUser = _firebaseAuth.currentUser;
     if (fbUser != null) {
       // If user is already logged in, fetch user details from the database
-      _currentUser = await _databaseService.getUserByUid(fbUser.uid);
-      notifyListeners();
+      User? user = await _databaseService.getUserByUid(fbUser.uid);
+      if (user != null) {
+        _currentUserId = user.id;
+        getUser();
+      }
     }
   }
 
@@ -38,9 +50,11 @@ class CustomAuthProvider with ChangeNotifier {
             uid: fbUser.uid,
             name: name,
             email: email,
-            password: hashedPassword);
-        _currentUser = await _databaseService.insertUser(newUser);
-        notifyListeners();
+            password: hashedPassword,
+            unlockedThemes: defualtUnlockedThemes);
+        User user = await _databaseService.insertUser(newUser);
+        _currentUserId = user.id;
+        getUser();
       }
     } catch (e) {
       rethrow;
@@ -55,8 +69,11 @@ class CustomAuthProvider with ChangeNotifier {
       );
       final fbUser = userCredential.user;
       if (fbUser != null) {
-        _currentUser = await _databaseService.getUserByUid(fbUser.uid);
-        notifyListeners();
+        User? user = await _databaseService.getUserByUid(fbUser.uid);
+        if (user != null) {
+          _currentUserId = user.id;
+          getUser();
+        }
       }
     } catch (e) {
       rethrow;
@@ -65,7 +82,7 @@ class CustomAuthProvider with ChangeNotifier {
 
   Future<void> logOut() async {
     await _firebaseAuth.signOut();
-    _currentUser = null;
+    _currentUserId = null;
     notifyListeners();
   }
 }

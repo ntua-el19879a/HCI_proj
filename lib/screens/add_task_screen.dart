@@ -1,28 +1,31 @@
+//add_task_screen.dart
+
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:prioritize_it/models/task.dart';
 import 'package:prioritize_it/providers/auth_provider.dart';
 import 'package:prioritize_it/providers/task_provider.dart';
-import 'package:prioritize_it/providers/user_provider.dart';
 import 'package:prioritize_it/providers/theme_provider.dart';
-
+import 'package:prioritize_it/providers/user_provider.dart';
 import 'package:prioritize_it/screens/google_map_screen.dart';
 import 'package:prioritize_it/services/notification_service.dart';
 import 'package:prioritize_it/utils/app_constants.dart';
+import 'package:prioritize_it/utils/global_settings.dart';
 import 'package:prioritize_it/utils/themes.dart';
 import 'package:prioritize_it/widgets/buttons/styeld_elevated_button.dart';
 import 'package:prioritize_it/widgets/buttons/styled_text_button.dart';
 import 'package:prioritize_it/widgets/styled_app_bar.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 
 class AddTaskScreen extends StatefulWidget {
   final Task? task;
   final DateTime? initialDate;
 
-  const AddTaskScreen({Key? key, this.task, this.initialDate})
-      : super(key: key);
+  const AddTaskScreen({super.key, this.task, this.initialDate});
 
   @override
   _AddTaskScreenState createState() => _AddTaskScreenState();
@@ -42,7 +45,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   void initState() {
     super.initState();
     _currentUserId =
-        Provider.of<CustomAuthProvider>(context, listen: false).currentUser?.id;
+        Provider.of<CustomAuthProvider>(context, listen: false).currentUserId;
 
     if (widget.task != null) {
       _titleController.text = widget.task!.title;
@@ -75,7 +78,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         Placemark placemark = placemarks.first;
         setState(() {
           _selectedAddress =
-          '${placemark.street}, ${placemark.locality}, ${placemark.country}';
+              '${placemark.street}, ${placemark.locality}, ${placemark.country}';
         });
       }
     } catch (e) {
@@ -124,11 +127,19 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         Provider.of<TaskProvider>(context, listen: false).addTask(newTask);
         Provider.of<UserProvider>(context, listen: false).handleTaskAdded();
         try {
-          NotificationService.showNotification(
-            id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-            title: 'Task Added',
-            body: 'You added: ${newTask.title}',
-          );
+          if (GlobalSettings.showNotifications) {
+            NotificationService.showInstantNotification(
+              'New task added',
+              '${newTask.title} was successfully created',
+            );
+            if (_selectedTime != null) {
+              await NotificationService.scheduleNotification(
+                  Random().nextInt(666),
+                  newTask.title,
+                  newTask.description ?? '',
+                  newTask.date!);
+            }
+          }
         } catch (e) {
           debugPrint("Error showing notification: $e");
         }
@@ -152,10 +163,23 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     }
   }
 
-  void _presentDatePicker() {
+  void _presentDatePicker(AppTheme currentTheme) {
     DateTime initialDate = _selectedDate ?? DateTime.now();
     showDatePicker(
       context: context,
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            // Customize the color scheme
+            colorScheme: ColorScheme.light(primary: currentTheme.primary),
+            textButtonTheme: TextButtonThemeData(
+              style:
+                  TextButton.styleFrom(foregroundColor: currentTheme.primary),
+            ),
+          ),
+          child: child!,
+        );
+      },
       initialDate: initialDate,
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
@@ -167,16 +191,28 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     });
   }
 
-  void _presentTimePicker() {
-    showTimePicker(
-      context: context,
-      initialTime: _selectedTime ?? TimeOfDay.now(),
-    ).then((pickedTime) {
-      if (pickedTime == null) return;
+  void _presentTimePicker(AppTheme currentTheme) async {
+    final pickedTime = await showTimePicker(
+        context: context,
+        initialTime: _selectedTime ?? TimeOfDay.now(),
+        builder: (BuildContext context, Widget? child) {
+          return Theme(
+            data: Theme.of(context).copyWith(
+              // Customize the color scheme
+              colorScheme: ColorScheme.light(primary: currentTheme.primary),
+              textButtonTheme: TextButtonThemeData(
+                style:
+                    TextButton.styleFrom(foregroundColor: currentTheme.primary),
+              ),
+            ),
+            child: child!,
+          );
+        });
+    if (pickedTime != null) {
       setState(() {
         _selectedTime = pickedTime;
       });
-    });
+    }
   }
 
   @override
@@ -221,8 +257,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                             : 'Due Date: ${DateFormat('yyyy-MM-dd').format(_selectedDate!)}',
                       ),
                     ),
-                    TextButton(
-                      onPressed: _presentDatePicker,
+                    StyledTextButton(
+                      onPressed: () => _presentDatePicker(currentTheme),
                       child: const Text('Choose Date'),
                     ),
                   ],
@@ -236,8 +272,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                             : 'Time: ${DateFormat('HH:mm').format(DateTime(0, 0, 0, _selectedTime!.hour, _selectedTime!.minute))}',
                       ),
                     ),
-                    TextButton(
-                      onPressed: _presentTimePicker,
+                    StyledTextButton(
+                      onPressed: () => _presentTimePicker(currentTheme),
                       child: const Text('Choose Time'),
                     ),
                   ],
@@ -255,27 +291,28 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       onPressed: isPastTask
                           ? null
                           : () async {
-                        final result = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => GoogleMapScreen(
-                              initialLocation: _selectedLocation,
-                              onLocationSelected: (LatLng location) async {
+                              final result = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => GoogleMapScreen(
+                                    initialLocation: _selectedLocation,
+                                    onLocationSelected:
+                                        (LatLng location) async {
+                                      setState(() {
+                                        _selectedLocation = location;
+                                      });
+                                      await _getAddressFromLatLng(location);
+                                    },
+                                  ),
+                                ),
+                              );
+                              if (result != null) {
                                 setState(() {
-                                  _selectedLocation = location;
+                                  _selectedLocation = result;
                                 });
-                                await _getAddressFromLatLng(location);
-                              },
-                            ),
-                          ),
-                        );
-                        if (result != null) {
-                          setState(() {
-                            _selectedLocation = result;
-                          });
-                          await _getAddressFromLatLng(result);
-                        }
-                      },
+                                await _getAddressFromLatLng(result);
+                              }
+                            },
                       child: const Text('Select Location'),
                     ),
                   ],
@@ -284,7 +321,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 StyledElevatedButton(
                   onPressed: isPastTask ? null : _submitData,
                   child:
-                  Text(widget.task == null ? 'Add Task' : 'Save Changes'),
+                      Text(widget.task == null ? 'Add Task' : 'Save Changes'),
                 ),
               ],
             ),

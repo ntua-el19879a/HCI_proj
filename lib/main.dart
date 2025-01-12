@@ -19,10 +19,11 @@ import 'app.dart';
 import 'firebase_options.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-FlutterLocalNotificationsPlugin();
+    FlutterLocalNotificationsPlugin();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  tz.initializeTimeZones();
   tz.initializeTimeZones();
   final DatabaseService db;
 
@@ -37,21 +38,22 @@ void main() async {
     return;
   }
 
+  final userProvider = UserProvider(db);
+
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => TaskProvider(db)),
         ChangeNotifierProvider(create: (context) {
-          var userProvider = UserProvider(db);
-          userProvider.loadUser(); // Load user data immediately
           return userProvider;
         }),
         ChangeNotifierProvider(create: (context) => GlobalSettingsProvider()),
         ChangeNotifierProvider(
           create: (_) => ThemeProvider(
-              initialTheme: blueTheme, initialName: ThemeName.green),
+              initialTheme: blueTheme, initialName: ThemeName.blue),
         ),
-        ChangeNotifierProvider(create: (context) => CustomAuthProvider(db)),
+        ChangeNotifierProvider(
+            create: (context) => CustomAuthProvider(db, userProvider)),
         // ... other providers
       ],
       child: const App(),

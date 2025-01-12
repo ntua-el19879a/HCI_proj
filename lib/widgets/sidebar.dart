@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:prioritize_it/models/user.dart';
 import 'package:prioritize_it/providers/auth_provider.dart';
 import 'package:prioritize_it/providers/theme_provider.dart';
+import 'package:prioritize_it/providers/user_provider.dart';
 import 'package:prioritize_it/utils/app_constants.dart';
 import 'package:provider/provider.dart';
 
@@ -10,8 +11,8 @@ class Sidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<CustomAuthProvider>(context);
-    final User? currentUser = authProvider.currentUser;
+    final userProvider = Provider.of<UserProvider>(context);
+    final User? currentUser = userProvider.user;
     final currentTheme = Provider.of<ThemeProvider>(context).currentTheme;
 
     return Drawer(
@@ -100,7 +101,7 @@ class Sidebar extends StatelessWidget {
             leading: Icon(Icons.logout),
             title: Text(LOGOUT_TITLE),
             onTap: () async {
-              await authProvider.logOut();
+              Provider.of<CustomAuthProvider>(context, listen: false).logOut();
               Navigator.pushReplacementNamed(context, '/login');
             },
           ),

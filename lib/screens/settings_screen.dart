@@ -25,14 +25,14 @@ class SettingsScreen extends StatelessWidget {
               builder: (context, globalSettings, child) {
                 return Consumer<ThemeProvider>(
                     builder: (context, themeProvider, child) {
-                      return StyledSwitchListTile(
-                          title: 'Dark Mode',
-                          value: GlobalSettings.themeModeType == ThemeModeType.dark,
-                          onChanged: (value) {
-                            globalSettings.toggleTheme(value);
-                            themeProvider.switchTheme(themeProvider.themeName);
-                          });
-                    });
+                  return StyledSwitchListTile(
+                      title: 'Dark Mode',
+                      value: GlobalSettings.themeModeType == ThemeModeType.dark,
+                      onChanged: (value) {
+                        globalSettings.toggleTheme(value);
+                        themeProvider.switchTheme(themeProvider.themeName);
+                      });
+                });
               },
             ),
             Consumer<GlobalSettingsProvider>(

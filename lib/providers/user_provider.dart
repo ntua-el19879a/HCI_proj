@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:prioritize_it/models/user.dart';
 import 'package:prioritize_it/services/database_service.dart';
+import 'package:prioritize_it/utils/theme_name.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:intl/intl.dart';
 
 class UserProvider with ChangeNotifier {
   User? _user;
@@ -11,29 +12,8 @@ class UserProvider with ChangeNotifier {
   UserProvider(this.dbService);
 
   User? get user => _user;
-
-  bool get isLoading => _isLoading;
-  bool _isLoading = false;
-
-  Future<void> loadUser() async {
-    if (_isLoading) return;
-
-    _isLoading = true;
-    notifyListeners();
-
-    _user = await dbService.getUserByUid('');
-    if (_user == null) {
-      _user = User(name: '', uid: '', email: '', password: '');
-      await dbService.insertUser(_user!);
-    }
-    await _checkStreak();
-
-    // Fetch the number of completed tasks from the database
-    if (_user != null && _user!.id != null) {
-      _user!.completedTasks = await dbService.getCompletedTasksCount(_user!.id!);
-    }
-
-    _isLoading = false;
+  set user(User? user) {
+    _user = user;
     notifyListeners();
   }
 
@@ -125,6 +105,15 @@ class UserProvider with ChangeNotifier {
       await _updateStreak();
       await dbService.updateUser(_user!);
       notifyListeners(); // Notify after updating
+    }
+  }
+
+  Future<void> unlockTheme(ThemeName themeName, int requiredPoints) async {
+    if (_user != null) {
+      _user!.deductPoints(requiredPoints);
+      _user!.unlockTheme(themeName);
+      await dbService.updateUser(_user!);
+      notifyListeners();
     }
   }
 }

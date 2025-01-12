@@ -11,9 +11,9 @@ class StyledSwitchListTile extends StatelessWidget {
 
   const StyledSwitchListTile(
       {super.key,
-        required this.title,
-        required this.onChanged,
-        required this.value});
+      required this.title,
+      required this.onChanged,
+      required this.value});
 
   @override
   Widget build(BuildContext context) {

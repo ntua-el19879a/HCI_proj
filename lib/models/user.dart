@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:prioritize_it/utils/theme_name.dart';
 
 class User {
   String? id;
@@ -10,21 +10,23 @@ class User {
   String password;
   String email;
   int completedTasks;
+  List<ThemeName> unlockedThemes; // Changed from ThemeName[] to List<ThemeName>
 
-  User({
-    this.id,
-    required this.name,
-    required this.uid,
-    required this.email,
-    required this.password,
-    this.currentStreak = 0,
-    this.longestStreak = 0,
-    this.points = 0,
-    this.completedTasks = 0,
-  });
+  User(
+      {this.id,
+      required this.name,
+      required this.uid,
+      required this.email,
+      required this.password,
+      this.currentStreak = 0,
+      this.longestStreak = 0,
+      this.points = 0,
+      this.completedTasks = 0,
+      this.unlockedThemes = defualtUnlockedThemes});
 
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'name': name,
       'email': email,
       'uid': uid,
@@ -33,21 +35,29 @@ class User {
       'longestStreak': longestStreak,
       'points': points,
       'completedTasks': completedTasks,
+      'unlockedThemes':
+          unlockedThemes.map((theme) => themeNameStringMap[theme]).toList(),
     };
   }
 
   factory User.fromMap(Map<String, dynamic> map) {
-    return User(
-      id: map['id'],
-      uid: map['uid'],
-      name: map['name'],
-      password: map['password'],
-      email: map['email'],
-      currentStreak: map['currentStreak'],
-      longestStreak: map['longestStreak'],
-      points: map['points'],
-      completedTasks: map['completedTasks'],
-    );
+    User u = User(
+        id: map['id'],
+        uid: map['uid'],
+        name: map['name'],
+        password: map['password'],
+        email: map['email'],
+        currentStreak: map['currentStreak'] ?? 0,
+        longestStreak: map['longestStreak'] ?? 0,
+        points: map['points'] ?? 0,
+        completedTasks: map['completedTasks'] ?? 0,
+        unlockedThemes: (map['unlockedThemes'] as List<dynamic>?)
+                ?.map((themeNameStr) =>
+                    stringToThemeNameMap[themeNameStr as String] ??
+                    ThemeName.blue)
+                .toList() ??
+            []);
+    return u;
   }
 
   void incrementStreak() {
@@ -80,5 +90,15 @@ class User {
     if (completedTasks > 0) {
       completedTasks--;
     }
+  }
+
+  void unlockTheme(ThemeName theme) {
+    if (!unlockedThemes.contains(theme)) {
+      unlockedThemes.add(theme);
+    }
+  }
+
+  bool isThemeUnlocked(ThemeName theme) {
+    return unlockedThemes.contains(theme);
   }
 }

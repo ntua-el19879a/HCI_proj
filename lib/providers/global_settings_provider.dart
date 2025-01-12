@@ -5,7 +5,7 @@ import 'package:prioritize_it/utils/theme_mode_type.dart';
 class GlobalSettingsProvider with ChangeNotifier {
   void toggleTheme(bool isDarkMode) {
     GlobalSettings.themeModeType =
-    isDarkMode ? ThemeModeType.dark : ThemeModeType.light;
+        isDarkMode ? ThemeModeType.dark : ThemeModeType.light;
     notifyListeners();
   }
 

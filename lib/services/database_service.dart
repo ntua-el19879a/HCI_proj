@@ -25,10 +25,23 @@ class DatabaseService {
       if (querySnapshot.docs.isEmpty) return null;
 
       final doc = querySnapshot.docs.first;
-
-      return User.fromMap(doc.data()..['id'] = doc.id);
+      final data = doc.data();
+      data['id'] = doc.id;
+      return User.fromMap(data);
     } catch (e) {
+      debugPrint('Stack trace: $e');
       debugPrint("Error fetching user by UID: $e");
+      return null;
+    }
+  }
+
+  Future<User?> getUserById(String id) async {
+    try {
+      final docSnapshot = await _database.collection('users').doc(id).get();
+      if (!docSnapshot.exists) return null;
+      return User.fromMap(docSnapshot.data()!..['id'] = docSnapshot.id);
+    } catch (e) {
+      debugPrint("Error fetching user by ID: $e");
       return null;
     }
   }
@@ -37,7 +50,7 @@ class DatabaseService {
   Future<User> insertUser(User user) async {
     try {
       final docRef =
-      await _database.collection(_usersCollection).add(user.toMap());
+          await _database.collection(_usersCollection).add(user.toMap());
       final docId = docRef.id;
       User createdUser = User.fromMap({...user.toMap(), 'id': docId});
       return createdUser;
@@ -66,7 +79,7 @@ class DatabaseService {
   Future<List<Task>> getTasksForDate(String userId, DateTime date) async {
     final startOfDay = DateTime(date.year, date.month, date.day).toUtc();
     final endOfDay =
-    DateTime(date.year, date.month, date.day, 23, 59, 59, 999).toUtc();
+        DateTime(date.year, date.month, date.day, 23, 59, 59, 999).toUtc();
 
     try {
       final querySnapshot = await _database
@@ -78,9 +91,9 @@ class DatabaseService {
 
       return querySnapshot.docs
           .map((doc) => Task.fromMap({
-        ...doc.data(),
-        'id': doc.id,
-      }))
+                ...doc.data(),
+                'id': doc.id,
+              }))
           .toList();
     } catch (e) {
       debugPrint("Error getting tasks for date: $e");
