@@ -20,7 +20,7 @@ class GoogleMapScreen extends StatefulWidget {
 class _GoogleMapScreenState extends State<GoogleMapScreen> {
   late GoogleMapController _mapController;
   LatLng _currentPosition =
-      const LatLng(37.7749, -122.4194); // Default to San Francisco
+      const LatLng(37.94346959815413, 23.64429473876953); // Default to San Francisco
   LatLng? _selectedLocation;
   bool _locationFetched = false; // Flag to track if location has been fetched
 

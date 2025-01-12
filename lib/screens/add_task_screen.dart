@@ -1,13 +1,12 @@
-//add_task_screen.dart
-
 import 'package:flutter/material.dart';
-import 'package:geocoding/geocoding.dart'; // For reverse geocoding
+import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:prioritize_it/models/task.dart';
 import 'package:prioritize_it/providers/auth_provider.dart';
 import 'package:prioritize_it/providers/task_provider.dart';
-import 'package:prioritize_it/providers/theme_provider.dart';
 import 'package:prioritize_it/providers/user_provider.dart';
+import 'package:prioritize_it/providers/theme_provider.dart';
+
 import 'package:prioritize_it/screens/google_map_screen.dart';
 import 'package:prioritize_it/services/notification_service.dart';
 import 'package:prioritize_it/utils/app_constants.dart';
@@ -16,12 +15,14 @@ import 'package:prioritize_it/widgets/buttons/styeld_elevated_button.dart';
 import 'package:prioritize_it/widgets/buttons/styled_text_button.dart';
 import 'package:prioritize_it/widgets/styled_app_bar.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 class AddTaskScreen extends StatefulWidget {
   final Task? task;
   final DateTime? initialDate;
 
-  const AddTaskScreen({super.key, this.task, this.initialDate});
+  const AddTaskScreen({Key? key, this.task, this.initialDate})
+      : super(key: key);
 
   @override
   _AddTaskScreenState createState() => _AddTaskScreenState();
@@ -74,7 +75,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         Placemark placemark = placemarks.first;
         setState(() {
           _selectedAddress =
-              '${placemark.street}, ${placemark.locality}, ${placemark.country}';
+          '${placemark.street}, ${placemark.locality}, ${placemark.country}';
         });
       }
     } catch (e) {
@@ -94,21 +95,15 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
   void _submitData() async {
     if (_formKey.currentState!.validate()) {
-      DateTime? combinedDateTime;
-
-      if (_selectedDate != null) {
+      DateTime? combinedDateTime = _selectedDate;
+      if (_selectedTime != null && _selectedDate != null) {
         combinedDateTime = DateTime(
           _selectedDate!.year,
           _selectedDate!.month,
           _selectedDate!.day,
+          _selectedTime!.hour,
+          _selectedTime!.minute,
         );
-
-        if (_selectedTime != null) {
-          combinedDateTime = combinedDateTime.add(Duration(
-            hours: _selectedTime!.hour,
-            minutes: _selectedTime!.minute,
-          ));
-        }
       }
 
       if (_selectedLocation != null && _selectedAddress == null) {
@@ -129,7 +124,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         Provider.of<TaskProvider>(context, listen: false).addTask(newTask);
         Provider.of<UserProvider>(context, listen: false).handleTaskAdded();
         try {
-          await NotificationService.showNotification(
+          NotificationService.showNotification(
             id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
             title: 'Task Added',
             body: 'You added: ${newTask.title}',
@@ -155,6 +150,33 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
       Navigator.of(context).pop();
     }
+  }
+
+  void _presentDatePicker() {
+    DateTime initialDate = _selectedDate ?? DateTime.now();
+    showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    ).then((pickedDate) {
+      if (pickedDate == null) return;
+      setState(() {
+        _selectedDate = pickedDate;
+      });
+    });
+  }
+
+  void _presentTimePicker() {
+    showTimePicker(
+      context: context,
+      initialTime: _selectedTime ?? TimeOfDay.now(),
+    ).then((pickedTime) {
+      if (pickedTime == null) return;
+      setState(() {
+        _selectedTime = pickedTime;
+      });
+    });
   }
 
   @override
@@ -194,40 +216,28 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   children: [
                     Expanded(
                       child: Text(
-                        _selectedTime == null
-                            ? 'No Time Set'
-                            : 'Time: ${_selectedTime!.format(context)}',
+                        _selectedDate == null
+                            ? 'No Due Date'
+                            : 'Due Date: ${DateFormat('yyyy-MM-dd').format(_selectedDate!)}',
                       ),
                     ),
-                    StyledTextButton(
-                      onPressed: isPastTask
-                          ? null
-                          : () async {
-                              final pickedTime = await showTimePicker(
-                                  context: context,
-                                  initialTime: _selectedTime ?? TimeOfDay.now(),
-                                  builder:
-                                      (BuildContext context, Widget? child) {
-                                    return Theme(
-                                      data: Theme.of(context).copyWith(
-                                        // Customize the color scheme
-                                        colorScheme: ColorScheme.light(
-                                            primary: currentTheme.primary),
-                                        textButtonTheme: TextButtonThemeData(
-                                          style: TextButton.styleFrom(
-                                              foregroundColor:
-                                                  currentTheme.primary),
-                                        ),
-                                      ),
-                                      child: child!,
-                                    );
-                                  });
-                              if (pickedTime != null) {
-                                setState(() {
-                                  _selectedTime = pickedTime;
-                                });
-                              }
-                            },
+                    TextButton(
+                      onPressed: _presentDatePicker,
+                      child: const Text('Choose Date'),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        _selectedTime == null
+                            ? 'No Time Set'
+                            : 'Time: ${DateFormat('HH:mm').format(DateTime(0, 0, 0, _selectedTime!.hour, _selectedTime!.minute))}',
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: _presentTimePicker,
                       child: const Text('Choose Time'),
                     ),
                   ],
@@ -245,28 +255,27 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       onPressed: isPastTask
                           ? null
                           : () async {
-                              final result = await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => GoogleMapScreen(
-                                    initialLocation: _selectedLocation,
-                                    onLocationSelected:
-                                        (LatLng location) async {
-                                      setState(() {
-                                        _selectedLocation = location;
-                                      });
-                                      await _getAddressFromLatLng(location);
-                                    },
-                                  ),
-                                ),
-                              );
-                              if (result != null) {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => GoogleMapScreen(
+                              initialLocation: _selectedLocation,
+                              onLocationSelected: (LatLng location) async {
                                 setState(() {
-                                  _selectedLocation = result;
+                                  _selectedLocation = location;
                                 });
-                                await _getAddressFromLatLng(result);
-                              }
-                            },
+                                await _getAddressFromLatLng(location);
+                              },
+                            ),
+                          ),
+                        );
+                        if (result != null) {
+                          setState(() {
+                            _selectedLocation = result;
+                          });
+                          await _getAddressFromLatLng(result);
+                        }
+                      },
                       child: const Text('Select Location'),
                     ),
                   ],
@@ -275,7 +284,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 StyledElevatedButton(
                   onPressed: isPastTask ? null : _submitData,
                   child:
-                      Text(widget.task == null ? 'Add Task' : 'Save Changes'),
+                  Text(widget.task == null ? 'Add Task' : 'Save Changes'),
                 ),
               ],
             ),

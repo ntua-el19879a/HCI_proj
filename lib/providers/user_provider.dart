@@ -3,16 +3,12 @@ import 'package:prioritize_it/models/user.dart';
 import 'package:prioritize_it/services/database_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
-import 'package:prioritize_it/providers/auth_provider.dart';
 
 class UserProvider with ChangeNotifier {
   User? _user;
   final DatabaseService dbService;
-  final CustomAuthProvider authProvider;
 
-  UserProvider(this.dbService, this.authProvider) {
-    loadUser();
-  }
+  UserProvider(this.dbService);
 
   User? get user => _user;
 
@@ -25,19 +21,16 @@ class UserProvider with ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    String? currentUserId = authProvider.currentUser?.id;
-    if (currentUserId != null) {
-      _user = await dbService.getUserByUid(currentUserId);
-      if (_user == null) {
-        _user = User(name: '', uid: currentUserId, email: '', password: '');
-        await dbService.insertUser(_user!);
-      }
-      await _checkStreak();
+    _user = await dbService.getUserByUid('');
+    if (_user == null) {
+      _user = User(name: '', uid: '', email: '', password: '');
+      await dbService.insertUser(_user!);
+    }
+    await _checkStreak();
 
-      // Fetch the number of completed tasks from the database
-      if (_user != null && _user!.id != null) {
-        _user!.completedTasks = await dbService.getCompletedTasksCount(_user!.id!);
-      }
+    // Fetch the number of completed tasks from the database
+    if (_user != null && _user!.id != null) {
+      _user!.completedTasks = await dbService.getCompletedTasksCount(_user!.id!);
     }
 
     _isLoading = false;
@@ -54,15 +47,14 @@ class UserProvider with ChangeNotifier {
     if (_user != null) {
       _user!.addPoints(pointsAwarded);
       _user!.incrementCompletedTasks();
-      await _updateLastActivityDate();
-      await _checkStreak();
+      await _updateStreak();
       await dbService.updateUser(_user!);
       notifyListeners();
     }
   }
 
   Future<void> handleTaskUncompletion() async {
-    if (_user != null ) {
+    if (_user != null && _user!.completedTasks > 0) {
       _user!.deductPoints(30);
       _user!.decrementCompletedTasks();
       await dbService.updateUser(_user!);
@@ -81,32 +73,39 @@ class UserProvider with ChangeNotifier {
   Future<void> _checkStreak() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? lastActivityDate = prefs.getString('lastActivityDate');
-    DateTime now = DateTime.now();
-    String formattedToday = DateFormat('yyyy-MM-dd').format(now);
+    bool isFirstTask = prefs.getBool('isFirstTask') ??
+        true; // Check if it's the first task today
+
+    if (isFirstTask) {
+      // Award points for the first task of the day
+      _user?.addPoints(30); // 30 points for the first task
+      await dbService.updateUser(_user!);
+      await prefs.setBool('isFirstTask', false);
+    }
 
     if (lastActivityDate != null) {
       DateTime lastDate = DateTime.parse(lastActivityDate);
-      DateTime yesterday = now.subtract(Duration(days: 1));
-      if (DateFormat('yyyy-MM-dd').format(lastDate) ==
-          DateFormat('yyyy-MM-dd').format(yesterday)) {
+      DateTime yesterday = DateTime.now().subtract(Duration(days: 1));
+      if (DateFormat('yyyy-dd-MM').format(lastDate) ==
+          DateFormat('yyyy-dd-MM').format(yesterday)) {
         _user!.incrementStreak();
-      } else if (DateFormat('yyyy-MM-dd').format(lastDate) != formattedToday) {
+      } else if (DateFormat('yyyy-dd-MM').format(lastDate) !=
+          DateFormat('yyyy-dd-MM').format(DateTime.now())) {
         _user!.resetStreak();
       }
     } else {
       _user!.resetStreak();
     }
 
-    // Update the user in the database
-    await dbService.updateUser(_user!);
-    notifyListeners();
+    await prefs.setString(
+        'lastActivityDate', DateFormat('yyyy-dd-MM').format(DateTime.now()));
   }
 
-  Future<void> _updateLastActivityDate() async {
+  Future<void> _updateStreak() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String formattedToday = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    await prefs.setString('lastActivityDate', formattedToday);
-    await _checkInactivity();
+    await prefs.setString(
+        'lastActivityDate', DateFormat('yyyy-dd-MM').format(DateTime.now()));
+    await _checkStreak(); // Update streak data after updating activity date
   }
 
   Future<void> handleTaskAdded() async {
@@ -114,35 +113,18 @@ class UserProvider with ChangeNotifier {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       bool isFirstTask = prefs.getBool('isFirstTask') ?? true;
 
+      // Check if it's the first task of the day
       if (isFirstTask) {
-        _user!.addPoints(30);
+        // Award points for the first task of the day
+        _user!.addPoints(30); // 30 points for the first task
         await prefs.setBool('isFirstTask', false);
       } else {
         _user!.addPoints(10);
       }
-
-      await _updateLastActivityDate();
-      await _checkStreak();
+      // Update streak and user in the database
+      await _updateStreak();
       await dbService.updateUser(_user!);
-      notifyListeners();
-    }
-  }
-
-  Future<void> _checkInactivity() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? lastActivityDate = prefs.getString('lastActivityDate');
-    DateTime now = DateTime.now();
-
-    if (lastActivityDate != null) {
-      DateTime lastActive = DateTime.parse(lastActivityDate);
-      int daysInactive = now.difference(lastActive).inDays;
-
-      if (daysInactive >= 2) {
-        int pointsToDeduct = (daysInactive ~/ 2) * 50;
-        _user!.deductPoints(pointsToDeduct);
-        await dbService.updateUser(_user!);
-        notifyListeners();
-      }
+      notifyListeners(); // Notify after updating
     }
   }
 }
