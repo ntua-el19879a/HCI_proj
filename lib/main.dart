@@ -14,29 +14,26 @@ import 'app.dart';
 import 'package:prioritize_it/providers/theme_provider.dart';
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/data/latest.dart' as tz;
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  tz.initializeTimeZones();
   final DatabaseService db;
 
-  // Initialize services with error handling
   try {
     await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform);
     db = DatabaseService();
+    await NotificationService.init();
     debugPrint('Database successfully initialized');
   } catch (e) {
     debugPrint("Error initializing database: $e");
-    return; // Consider alternative error handling (e.g., show error screen)
-  }
-
-  try {
-    await NotificationService.initialize();
-    debugPrint("NotificationService initialized successfully.");
-  } catch (e) {
-    debugPrint("Error initializing NotificationService: $e");
-    // You might want to handle this differently, e.g., by disabling
-    // notifications or showing a warning to the user
+    return;
   }
 
   runApp(

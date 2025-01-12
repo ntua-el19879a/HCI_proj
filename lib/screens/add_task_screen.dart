@@ -1,5 +1,7 @@
 //add_task_screen.dart
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart'; // For reverse geocoding
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -129,11 +131,17 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         Provider.of<TaskProvider>(context, listen: false).addTask(newTask);
         Provider.of<UserProvider>(context, listen: false).handleTaskAdded();
         try {
-          await NotificationService.showNotification(
-            id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-            title: 'Task Added',
-            body: 'You added: ${newTask.title}',
+          NotificationService.showInstantNotification(
+            'New task added',
+            '${newTask.title} was successfully created',
           );
+          if (_selectedTime != null) {
+            await NotificationService.scheduleNotification(
+                Random().nextInt(666),
+                newTask.title,
+                newTask.description ?? '',
+                newTask.date!);
+          }
         } catch (e) {
           debugPrint("Error showing notification: $e");
         }

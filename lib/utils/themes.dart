@@ -96,17 +96,14 @@ final AppTheme darkRedTheme = AppTheme(
 
 final AppTheme spaceTheme = AppTheme(
   themeData: ThemeData(
-    scaffoldBackgroundColor: darkBackgroundColor, // Use shared dark background
-    primarySwatch: Colors.grey,
-    textTheme: TextTheme(
-      bodyLarge: TextStyle(color: Colors.white),
-      bodyMedium: TextStyle(color: Colors.white70),
-    ),
-  ),
+      scaffoldBackgroundColor:
+          lightBackgroundColor, // Use shared dark background
+      primarySwatch: Colors.grey,
+      brightness: Brightness.light),
   primary: Colors.grey,
   secondary: Colors.white,
-  primaryText: Colors.white,
-  secondaryText: Colors.white70,
+  primaryText: Colors.black,
+  secondaryText: Colors.black54,
 );
 
 final AppTheme royalTheme = AppTheme(
@@ -135,8 +132,8 @@ final AppTheme oceanTheme = AppTheme(
       bodyLarge: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
     ),
   ),
-  primary: Colors.blue,
-  secondary: Colors.lightBlueAccent,
+  primary: Colors.indigo,
+  secondary: Colors.indigoAccent,
   primaryText: Colors.black87,
   secondaryText: Colors.black54,
 );

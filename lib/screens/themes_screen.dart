@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:prioritize_it/providers/auth_provider.dart';
 import 'package:prioritize_it/utils/theme_name.dart';
 import 'package:prioritize_it/utils/themes.dart';
 import 'package:prioritize_it/widgets/base_layout.dart';
@@ -35,8 +36,8 @@ class ThemesScreen extends StatelessWidget {
 
   Widget _buildThemeItem(BuildContext context, ThemeName name, AppTheme theme,
       int requiredPoints) {
-    final userProvider = Provider.of<UserProvider>(context);
-    final userPoints = userProvider.user?.points ?? 0;
+    final authProvider = Provider.of<CustomAuthProvider>(context);
+    final userPoints = authProvider.currentUser?.points ?? 0;
     final isLocked = userPoints < requiredPoints;
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
 

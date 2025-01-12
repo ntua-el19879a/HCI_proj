@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:prioritize_it/models/user.dart';
 import 'package:prioritize_it/providers/auth_provider.dart';
 import 'package:prioritize_it/providers/task_provider.dart';
 import 'package:prioritize_it/providers/theme_provider.dart';
-import 'package:prioritize_it/providers/user_provider.dart';
 import 'package:prioritize_it/screens/add_task_screen.dart';
 import 'package:prioritize_it/screens/task_detail_screen.dart';
 import 'package:prioritize_it/utils/app_constants.dart';
@@ -26,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late DateTime _selectedDate;
   String? _currentUserId;
   AppTheme? _currentTheme;
+  User? _currentUser;
   bool _isLoading = true;
 
   @override
@@ -33,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _selectedDate = widget.selectedDate ?? DateTime.now();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadUserData();
+      _loadTasksForSelectedDate();
     });
   }
 
@@ -44,24 +45,25 @@ class _HomeScreenState extends State<HomeScreen> {
     // Access providers in `didChangeDependencies`
     final themeProvider = Provider.of<ThemeProvider>(context);
     final authProvider =
-    Provider.of<CustomAuthProvider>(context, listen: false);
+        Provider.of<CustomAuthProvider>(context, listen: false);
 
     // Update current theme and user ID
     _currentTheme = themeProvider.currentTheme;
-    _currentUserId = authProvider.currentUser?.id;
+    _currentUser = authProvider.currentUser;
+    _currentUserId = _currentUser?.id;
   }
 
-  void _loadUserData() async {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
+  // void _loadUserData() async {
+  //   final userProvider = Provider.of<UserProvider>(context, listen: false);
 
-    // Load user data first
-    await userProvider.loadUser();
+  //   // Load user data first
+  //   await userProvider.loadUser();
 
-    // Then, load tasks if user ID is available
-    if (_currentUserId != null) {
-      _loadTasksForSelectedDate();
-    }
-  }
+  //   // Then, load tasks if user ID is available
+  //   if (_currentUserId != null) {
+  //     _loadTasksForSelectedDate();
+  //   }
+  // }
 
   Future<void> _loadTasksForSelectedDate() async {
     if (_currentUserId != null && mounted) {
@@ -93,8 +95,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     String appBarTitle = _selectedDate.year == DateTime.now().year &&
-        _selectedDate.month == DateTime.now().month &&
-        _selectedDate.day == DateTime.now().day
+            _selectedDate.month == DateTime.now().month &&
+            _selectedDate.day == DateTime.now().day
         ? "Today"
         : DateFormat('yyyy-MM-dd').format(_selectedDate);
 
@@ -110,15 +112,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 final selectedTasks = taskProvider.tasks
                     .where((task) => task.date != null)
                     .where((task) =>
-                task.date!.year == _selectedDate.year &&
-                    task.date!.month == _selectedDate.month &&
-                    task.date!.day == _selectedDate.day)
+                        task.date!.year == _selectedDate.year &&
+                        task.date!.month == _selectedDate.month &&
+                        task.date!.day == _selectedDate.day)
                     .toList();
 
                 final currentTasks =
-                selectedTasks.where((task) => !task.isCompleted).toList();
+                    selectedTasks.where((task) => !task.isCompleted).toList();
                 final completedTasks =
-                selectedTasks.where((task) => task.isCompleted).toList();
+                    selectedTasks.where((task) => task.isCompleted).toList();
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -140,8 +142,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     const Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Text('Current Tasks',
-                          style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold)),
                     ),
                     Expanded(
                       child: ListView.builder(
@@ -223,40 +225,33 @@ class _HomeScreenState extends State<HomeScreen> {
           Positioned(
             left: 16,
             bottom: 16,
-            child: Consumer<UserProvider>(
-              builder: (context, userProvider, child) {
-                final user = userProvider.user;
-                if (user != null) {
-                  return Text(
-                    'Points: ${user.points}',
+            child: _currentUser != null
+                ? Text(
+                    'Points: ${_currentUser!.points}',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  );
-                } else {
-                  return SizedBox.shrink();
-                }
-              },
-            ),
+                  )
+                : SizedBox.shrink(),
           ),
         ],
       ),
       floatingActionButton: _isPastDate()
           ? null
           : FloatingActionButton(
-        backgroundColor: _currentTheme?.primary,
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  AddTaskScreen(initialDate: _selectedDate),
+              backgroundColor: _currentTheme?.primary,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        AddTaskScreen(initialDate: _selectedDate),
+                  ),
+                );
+              },
+              child: Icon(
+                Icons.add,
+                color: _currentTheme?.primaryText,
+              ),
             ),
-          );
-        },
-        child: Icon(
-          Icons.add,
-          color: _currentTheme?.primaryText,
-        ),
-      ),
     );
   }
 }

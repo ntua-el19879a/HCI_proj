@@ -1,51 +1,76 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 class NotificationService {
-  static final FlutterLocalNotificationsPlugin _notificationsPlugin =
-  FlutterLocalNotificationsPlugin();
+  static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
 
-  static Future<void> initialize() async {
-    // Android initialization
-    const AndroidInitializationSettings initializationSettingsAndroid =
-    AndroidInitializationSettings('@mipmap/ic_launcher');
+  static Future<void> onDidReceiveNotification(
+      NotificationResponse notificationResponse) async {
+    print("Notification receive");
+  }
 
-    // iOS initialization (add settings if targeting iOS)
-     final DarwinInitializationSettings initializationSettingsIOS =
-         DarwinInitializationSettings(
-             // ... (iOS-specific settings)
-        );
+  static Future<void> init() async {
+    const AndroidInitializationSettings androidInitializationSettings =
+        AndroidInitializationSettings("@mipmap/ic_launcher");
+    const DarwinInitializationSettings iOSInitializationSettings =
+        DarwinInitializationSettings();
 
-    // Initialization settings
-    final InitializationSettings initializationSettings =
-    InitializationSettings(
-      android: initializationSettingsAndroid,
-      iOS: initializationSettingsIOS, // Uncomment if targeting iOS
+    const InitializationSettings initializationSettings =
+        InitializationSettings(
+      android: androidInitializationSettings,
+      iOS: iOSInitializationSettings,
+    );
+    await flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: onDidReceiveNotification,
+      onDidReceiveBackgroundNotificationResponse: onDidReceiveNotification,
     );
 
-    await _notificationsPlugin.initialize(initializationSettings);
+    await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.requestPermission();
   }
 
-  static Future<void> showNotification(
-      {required int id,
-        required String title,
-        required String body,
-        String? payload}) async {
-    const AndroidNotificationDetails androidNotificationDetails =
-    AndroidNotificationDetails(
-        'your_channel_id', // Replace with your channel ID
-        'your_channel_name', // Replace with your channel name
-        channelDescription:
-        'your_channel_description', // Replace with your channel description
-        importance: Importance.max,
-        priority: Priority.high,
-        ticker: 'ticker');
+  static Future<void> showInstantNotification(String title, String body) async {
+    const NotificationDetails platformChannelSpecifics = NotificationDetails(
+        android: AndroidNotificationDetails(
+          'instant_notification_channel_id',
+          'Instant Notifications',
+          importance: Importance.max,
+          priority: Priority.high,
+        ),
+        iOS: DarwinNotificationDetails());
 
-    const NotificationDetails notificationDetails =
-    NotificationDetails(android: androidNotificationDetails);
-
-    await _notificationsPlugin.show(id, title, body, notificationDetails,
-        payload: payload);
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      title,
+      body,
+      platformChannelSpecifics,
+      payload: 'instant_notification',
+    );
   }
 
-// Add more methods for scheduling notifications, cancelling notifications, etc.
+  static Future<void> scheduleNotification(
+      int id, String title, String body, DateTime scheduledTime) async {
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+      id,
+      title,
+      body,
+      tz.TZDateTime.from(scheduledTime, tz.local),
+      const NotificationDetails(
+        iOS: DarwinNotificationDetails(),
+        android: AndroidNotificationDetails(
+          'reminder_channel',
+          'Reminder Channel',
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
+      ),
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.dateAndTime,
+    );
+  }
 }
