@@ -1,15 +1,13 @@
-//main.dart
-
 import 'package:flutter/material.dart';
 import 'package:prioritize_it/providers/task_provider.dart';
 import 'package:prioritize_it/providers/user_provider.dart';
 import 'package:prioritize_it/providers/auth_provider.dart';
 import 'package:prioritize_it/services/database_service.dart';
 import 'package:prioritize_it/services/notification_service.dart';
+import 'package:provider/provider.dart';
 import 'package:prioritize_it/utils/theme_mode_type.dart';
 import 'package:prioritize_it/utils/theme_name.dart';
 import 'package:prioritize_it/utils/themes.dart';
-import 'package:provider/provider.dart';
 import 'app.dart';
 import 'package:prioritize_it/providers/theme_provider.dart';
 import 'firebase_options.dart';
@@ -21,8 +19,7 @@ void main() async {
 
   // Initialize services with error handling
   try {
-    await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform);
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
     db = DatabaseService();
     debugPrint('Database successfully initialized');
   } catch (e) {
@@ -42,19 +39,22 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => TaskProvider(db)),
-        ChangeNotifierProvider(create: (context) {
-          var userProvider = UserProvider(db);
-          userProvider.loadUser(); // Load user data immediately
-          return userProvider;
-        }),
-        ChangeNotifierProvider(
-          create: (_) => ThemeProvider(
-              initialMode: ThemeModeType.light,
-              initialTheme: greenTheme,
-              initialName: ThemeName.green),
-        ),
+        ChangeNotifierProvider(create: (_) => ThemeProvider(initialMode: ThemeModeType.light,
+            initialTheme: greenTheme,
+            initialName: ThemeName.green)),
         ChangeNotifierProvider(create: (context) => CustomAuthProvider(db)),
+        ChangeNotifierProvider(
+          create: (context) => UserProvider(
+            db,
+            Provider.of<CustomAuthProvider>(context, listen: false),
+          )..loadUser(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => TaskProvider(
+            db,
+            Provider.of<CustomAuthProvider>(context, listen: false),
+          ),
+        ),
         // ... other providers
       ],
       child: const App(),

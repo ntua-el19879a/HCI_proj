@@ -33,8 +33,8 @@ class ThemeProvider extends ChangeNotifier {
     if (newThemeName == ThemeName.red) {
       _currentTheme = darkRedTheme;
     }
-    if (newThemeName == ThemeName.space) {
-      _currentTheme = darkSpaceTheme;
+    if (newThemeName == ThemeName.teal) {
+      _currentTheme = darkTealTheme;
     }
     if (newThemeName == ThemeName.royal) {
       _currentTheme = darkRoyalTheme;
@@ -57,8 +57,8 @@ class ThemeProvider extends ChangeNotifier {
     if (newThemeName == ThemeName.red) {
       _currentTheme = redTheme;
     }
-    if (newThemeName == ThemeName.space) {
-      _currentTheme = spaceTheme;
+    if (newThemeName == ThemeName.teal) {
+      _currentTheme = tealTheme;
     }
     if (newThemeName == ThemeName.royal) {
       _currentTheme = royalTheme;

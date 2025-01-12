@@ -16,33 +16,48 @@ class DatabaseService {
   // --- User Methods ---
 
   Future<User?> getUserByUid(String uid) async {
-    final querySnapshot = await _database
-        .collection(_usersCollection)
-        .where('uid', isEqualTo: uid)
-        .get();
+    try {
+      final querySnapshot = await _database
+          .collection(_usersCollection)
+          .where('uid', isEqualTo: uid)
+          .get();
 
-    if (querySnapshot.docs.isEmpty) return null;
+      if (querySnapshot.docs.isEmpty) return null;
 
-    final doc = querySnapshot.docs.first;
+      final doc = querySnapshot.docs.first;
 
-    return User.fromMap(doc.data()..['id'] = doc.id);
+      return User.fromMap(doc.data()..['id'] = doc.id);
+    } catch (e) {
+      debugPrint("Error fetching user by UID: $e");
+      return null;
+    }
   }
 
   // Insert a new user
   Future<User> insertUser(User user) async {
-    final docRef =
-    await _database.collection(_usersCollection).add(user.toMap());
-    final docId = docRef.id;
-    User createdUser = User.fromMap({...user.toMap(), 'id': docId});
-    return createdUser;
+    try {
+      final docRef =
+      await _database.collection(_usersCollection).add(user.toMap());
+      final docId = docRef.id;
+      User createdUser = User.fromMap({...user.toMap(), 'id': docId});
+      return createdUser;
+    } catch (e) {
+      debugPrint("Error inserting user: $e");
+      rethrow;
+    }
   }
 
   // Update an existing user
   Future<void> updateUser(User user) async {
-    await _database
-        .collection(_usersCollection)
-        .doc(user.id)
-        .update(user.toMap());
+    try {
+      await _database
+          .collection(_usersCollection)
+          .doc(user.id)
+          .update(user.toMap());
+    } catch (e) {
+      debugPrint("Error updating user: $e");
+      rethrow;
+    }
   }
 
   // --- Task Methods ---
@@ -53,48 +68,72 @@ class DatabaseService {
     final endOfDay =
     DateTime(date.year, date.month, date.day, 23, 59, 59, 999).toUtc();
 
-    final querySnapshot = await _database
-        .collection(_tasksCollection)
-        .where('userId', isEqualTo: userId)
-        .where('date', isGreaterThanOrEqualTo: startOfDay.toIso8601String())
-        .where('date', isLessThanOrEqualTo: endOfDay.toIso8601String())
-        .get();
+    try {
+      final querySnapshot = await _database
+          .collection(_tasksCollection)
+          .where('userId', isEqualTo: userId)
+          .where('date', isGreaterThanOrEqualTo: startOfDay.toIso8601String())
+          .where('date', isLessThanOrEqualTo: endOfDay.toIso8601String())
+          .get();
 
-    return querySnapshot.docs
-        .map((doc) => Task.fromMap({
-      ...doc.data(),
-      'id': doc.id,
-    }))
-        .toList();
+      return querySnapshot.docs
+          .map((doc) => Task.fromMap({
+        ...doc.data(),
+        'id': doc.id,
+      }))
+          .toList();
+    } catch (e) {
+      debugPrint("Error getting tasks for date: $e");
+      rethrow;
+    }
   }
 
   // Insert a new task
   Future<void> insertTask(Task task) async {
-    await _database.collection(_tasksCollection).add(task.toMap());
+    try {
+      await _database.collection(_tasksCollection).add(task.toMap());
+    } catch (e) {
+      debugPrint("Error inserting task: $e");
+      rethrow;
+    }
   }
 
   // Update an existing task
   Future<void> updateTask(Task task) async {
     try {
-      await _database.collection(_tasksCollection).doc(task.id).update(task.toMap());
+      await _database
+          .collection(_tasksCollection)
+          .doc(task.id)
+          .update(task.toMap());
     } catch (e) {
       debugPrint("Error updating task: $e");
-      throw e;
+      rethrow;
     }
   }
 
   // Delete a task
   Future<void> deleteTask(String taskId) async {
-    await _database.collection(_tasksCollection).doc(taskId).delete();
+    try {
+      await _database.collection(_tasksCollection).doc(taskId).delete();
+    } catch (e) {
+      debugPrint("Error deleting task: $e");
+      rethrow;
+    }
   }
 
+  // Get the count of completed tasks for a user
   Future<int> getCompletedTasksCount(String userId) async {
-    final querySnapshot = await _database
-        .collection(_tasksCollection)
-        .where('userId', isEqualTo: userId)
-        .where('isCompleted', isEqualTo: true)
-        .get();
+    try {
+      final querySnapshot = await _database
+          .collection(_tasksCollection)
+          .where('userId', isEqualTo: userId)
+          .where('isCompleted', isEqualTo: true)
+          .get();
 
-    return querySnapshot.docs.length;
+      return querySnapshot.docs.length;
+    } catch (e) {
+      debugPrint("Error getting completed tasks count: $e");
+      rethrow;
+    }
   }
 }

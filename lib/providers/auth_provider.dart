@@ -10,9 +10,9 @@ class CustomAuthProvider with ChangeNotifier {
   User? _currentUser;
 
   CustomAuthProvider(
-    this._databaseService, {
-    fbAuth.FirebaseAuth? firebaseAuth,
-  }) : _firebaseAuth = firebaseAuth ?? fbAuth.FirebaseAuth.instance;
+      this._databaseService, {
+        fbAuth.FirebaseAuth? firebaseAuth,
+      }) : _firebaseAuth = firebaseAuth ?? fbAuth.FirebaseAuth.instance;
 
   User? get currentUser => _currentUser;
 

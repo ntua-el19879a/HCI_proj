@@ -94,16 +94,16 @@ final AppTheme darkRedTheme = AppTheme(
   secondaryText: Colors.white70,
 );
 
-final AppTheme spaceTheme = AppTheme(
+final AppTheme tealTheme = AppTheme(
   themeData: ThemeData(
-    scaffoldBackgroundColor: darkBackgroundColor, // Use shared dark background
-    primarySwatch: Colors.grey,
+    scaffoldBackgroundColor: lightBackgroundColor, // Use shared dark background
+    primarySwatch: Colors.teal,
     textTheme: TextTheme(
-      bodyLarge: TextStyle(color: Colors.white),
-      bodyMedium: TextStyle(color: Colors.white70),
+      bodyLarge: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+      bodyMedium: TextStyle(color: Colors.black87),
     ),
   ),
-  primary: Colors.grey,
+  primary: Colors.tealAccent,
   secondary: Colors.white,
   primaryText: Colors.white,
   secondaryText: Colors.white70,
@@ -157,17 +157,18 @@ final AppTheme sunsetTheme = AppTheme(
   secondaryText: Colors.black54,
 );
 
-final AppTheme darkSpaceTheme = AppTheme(
+final AppTheme darkTealTheme = AppTheme(
   themeData: ThemeData(
     scaffoldBackgroundColor: darkBackgroundColor, // Use shared dark background
-    primarySwatch: Colors.grey,
+    brightness: Brightness.dark,
+    primarySwatch: Colors.teal,
     textTheme: TextTheme(
-      bodyLarge: TextStyle(color: Colors.white),
-      bodyMedium: TextStyle(color: Colors.white70),
+      bodyLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+      bodyMedium: TextStyle(color: Colors.white),
     ),
   ),
-  primary: Colors.grey,
-  secondary: Colors.white,
+  primary: Colors.teal,
+  secondary: Colors.tealAccent,
   primaryText: Colors.white,
   secondaryText: Colors.white70,
 );

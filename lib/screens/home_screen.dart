@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -11,6 +13,7 @@ import 'package:prioritize_it/utils/app_constants.dart';
 import 'package:prioritize_it/utils/themes.dart';
 import 'package:prioritize_it/widgets/base_layout.dart';
 import 'package:prioritize_it/widgets/task_item.dart';
+import 'package:prioritize_it/models/task.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -41,12 +44,10 @@ class _HomeScreenState extends State<HomeScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    // Access providers in `didChangeDependencies`
     final themeProvider = Provider.of<ThemeProvider>(context);
     final authProvider =
     Provider.of<CustomAuthProvider>(context, listen: false);
 
-    // Update current theme and user ID
     _currentTheme = themeProvider.currentTheme;
     _currentUserId = authProvider.currentUser?.id;
   }
@@ -54,10 +55,8 @@ class _HomeScreenState extends State<HomeScreen> {
   void _loadUserData() async {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
 
-    // Load user data first
     await userProvider.loadUser();
 
-    // Then, load tasks if user ID is available
     if (_currentUserId != null) {
       _loadTasksForSelectedDate();
     }
@@ -88,6 +87,23 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isPastDate() {
     final now = DateTime.now();
     return _selectedDate.isBefore(DateTime(now.year, now.month, now.day));
+  }
+
+  void _showTaskDetailsDialog(BuildContext context, Task task) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+          child: Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: TaskDetailScreen(task: task),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -140,8 +156,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     const Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Text('Current Tasks',
-                          style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold)),
                     ),
                     Expanded(
                       child: ListView.builder(
@@ -151,13 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           return GestureDetector(
                             onTap: () {
                               HapticFeedback.selectionClick();
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      TaskDetailScreen(task: task),
-                                ),
-                              );
+                              _showTaskDetailsDialog(context, task);
                             },
                             child: TaskItem(
                               task: task,
@@ -191,13 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           return GestureDetector(
                             onTap: () {
                               HapticFeedback.selectionClick();
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      TaskDetailScreen(task: task),
-                                ),
-                              );
+                              _showTaskDetailsDialog(context, task);
                             },
                             child: TaskItem(
                               task: task,

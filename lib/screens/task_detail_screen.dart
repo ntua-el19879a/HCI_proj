@@ -1,5 +1,3 @@
-//task_detai_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:prioritize_it/models/task.dart';
@@ -12,13 +10,11 @@ class TaskDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: StyledAppBar(
-        title: 'Task Details',
-      ),
-      body: Padding(
+    return SingleChildScrollView( // Wrap with SingleChildScrollView
+      child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          mainAxisSize: MainAxisSize.min, // Set mainAxisSize to min
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
@@ -26,7 +22,7 @@ class TaskDetailScreen extends StatelessWidget {
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
-            if (task.description != null)
+            if (task.description != null && task.description!.isNotEmpty)
               Text(
                 'Description: ${task.description}',
                 style: const TextStyle(fontSize: 18),
@@ -52,6 +48,16 @@ class TaskDetailScreen extends StatelessWidget {
                 'Location: ${task.address}',
                 style: const TextStyle(fontSize: 18),
               ),
+            const SizedBox(height: 20),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                child: const Text('Close'),
+              ),
+            ),
           ],
         ),
       ),
