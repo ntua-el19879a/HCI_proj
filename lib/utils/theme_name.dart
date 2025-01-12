@@ -1,4 +1,4 @@
-enum ThemeName { green, blue, red, teal, royal, pink, sunset }
+enum ThemeName { green, blue, red, teal, royal, bubblegum, sunset }
 
 final Map<ThemeName, String> themeNameStringMap = {
   ThemeName.green: 'Green',
@@ -6,7 +6,7 @@ final Map<ThemeName, String> themeNameStringMap = {
   ThemeName.red: 'Red',
   ThemeName.teal: 'Teal',
   ThemeName.royal: 'Royal',
-  ThemeName.pink: 'Pink',
+  ThemeName.bubblegum: 'Bubble Gum',
   ThemeName.sunset: 'Sunset',
 };
 
@@ -16,7 +16,7 @@ final Map<String, ThemeName> stringToThemeNameMap = {
   'Red': ThemeName.red,
   'Teal': ThemeName.teal,
   'Royal': ThemeName.royal,
-  'Ocean': ThemeName.ocean,
+  'Bubble Gum': ThemeName.bubblegum,
   'Sunset': ThemeName.sunset,
 };
 

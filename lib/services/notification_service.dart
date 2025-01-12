@@ -57,7 +57,7 @@ class NotificationService {
       onDidReceiveBackgroundNotificationResponse: onDidReceiveNotification,
     );
 
-    await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+    flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
         IOSFlutterLocalNotificationsPlugin>;
   }
 
@@ -111,15 +111,14 @@ class NotificationService {
       required String title,
       required String body,
       String? payload}) async {
-    const AndroidNotificationDetails androidNotificationDetails =
-        AndroidNotificationDetails(
-            'your_channel_id', // Replace with your channel ID
-            'your_channel_name', // Replace with your channel name
-            channelDescription:
-                'your_channel_description', // Replace with your channel description
-            importance: Importance.max,
-            priority: Priority.high,
-            ticker: 'ticker');
+    AndroidNotificationDetails(
+        'your_channel_id', // Replace with your channel ID
+        'your_channel_name', // Replace with your channel name
+        channelDescription:
+            'your_channel_description', // Replace with your channel description
+        importance: Importance.max,
+        priority: Priority.high,
+        ticker: 'ticker');
     const DarwinNotificationDetails iosNotifications =
         DarwinNotificationDetails(
       presentAlert: true,

@@ -246,6 +246,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   @override
   Widget build(BuildContext context) {
     final isPastTask = _isPastTask();
+    AppTheme currentTheme = Provider.of<ThemeProvider>(context).currentTheme;
 
     return Scaffold(
       appBar: StyledAppBar(

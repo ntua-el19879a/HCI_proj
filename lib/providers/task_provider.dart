@@ -16,17 +16,16 @@ class TaskProvider with ChangeNotifier {
   }
 
   Future<bool> addTask(Task task) async {
-    // Check for duplicate task names
     bool taskExists = await dbService.checkTaskExists(task.userId, task.title);
     if (taskExists) {
-      return false; // Task with the same name already exists
+      return false;
     }
 
     await dbService.insertTask(task);
     if (task.userId.isNotEmpty && task.date != null) {
       await loadTasksForDate(task.userId, task.date!);
     }
-    return true; // Task added successfully
+    return true;
   }
 
   Future<void> updateTask(Task task) async {

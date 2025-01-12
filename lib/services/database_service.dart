@@ -164,4 +164,5 @@ class DatabaseService {
       debugPrint("Error checking task existence: $e");
       rethrow;
     }
+  }
 }

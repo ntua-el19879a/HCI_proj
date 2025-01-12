@@ -35,7 +35,7 @@ class ThemesScreen extends StatelessWidget {
               _buildThemeItem(context, unlockedThemes, userPoints,
                   ThemeName.royal, royalTheme, 200),
               _buildThemeItem(context, unlockedThemes, userPoints,
-                  ThemeName.ocean, oceanTheme, 300),
+                  ThemeName.bubblegum, bubblegumTheme, 300),
               _buildThemeItem(context, unlockedThemes, userPoints,
                   ThemeName.sunset, sunsetTheme, 350),
             ],
@@ -43,26 +43,6 @@ class ThemesScreen extends StatelessWidget {
         },
       ),
     );
-        title: 'Themes',
-        body: ListView(
-          children: [
-            _buildThemeItem(
-                context, ThemeName.green, greenTheme, 0),
-            _buildThemeItem(
-                context, ThemeName.blue, blueTheme, 0),
-            _buildThemeItem(
-                context, ThemeName.red, redTheme, 0),
-            _buildThemeItem(
-                context, ThemeName.teal, tealTheme, 200),
-            _buildThemeItem(
-                context, ThemeName.royal, royalTheme, 200),
-            _buildThemeItem(
-                context, ThemeName.pink, bubblegumTheme, 300),
-            _buildThemeItem(
-                context, ThemeName.sunset, sunsetTheme, 350),
-            // Add more themes here
-          ],
-        ));
   }
 
   Widget _buildThemeItem(
