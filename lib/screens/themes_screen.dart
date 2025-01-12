@@ -22,8 +22,8 @@ class ThemesScreen extends StatelessWidget {
         title: 'Themes',
         body: ListView(
           children: [
-            _buildThemeItem(context, ThemeName.green, greenTheme, 0),
             _buildThemeItem(context, ThemeName.blue, blueTheme, 0),
+            _buildThemeItem(context, ThemeName.green, greenTheme, 0),
             _buildThemeItem(context, ThemeName.red, redTheme, 0),
             _buildThemeItem(context, ThemeName.space, spaceTheme, 200),
             _buildThemeItem(context, ThemeName.royal, royalTheme, 200),

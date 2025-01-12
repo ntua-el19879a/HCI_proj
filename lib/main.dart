@@ -49,7 +49,7 @@ void main() async {
         ChangeNotifierProvider(create: (context) => GlobalSettingsProvider()),
         ChangeNotifierProvider(
           create: (_) => ThemeProvider(
-              initialTheme: greenTheme, initialName: ThemeName.green),
+              initialTheme: blueTheme, initialName: ThemeName.green),
         ),
         ChangeNotifierProvider(create: (context) => CustomAuthProvider(db)),
         // ... other providers
