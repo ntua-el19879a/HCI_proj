@@ -112,7 +112,7 @@ class NotificationService {
         required String title,
         required String body,
         String? payload}) async {
-    const AndroidNotificationDetails androidNotificationDetails =
+    //const AndroidNotificationDetails androidNotificationDetails =
     AndroidNotificationDetails(
         'your_channel_id', // Replace with your channel ID
         'your_channel_name', // Replace with your channel name

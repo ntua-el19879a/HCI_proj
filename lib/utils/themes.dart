@@ -118,15 +118,15 @@ final AppTheme royalTheme = AppTheme(
   secondaryText: Colors.black54,
 );
 
-final AppTheme oceanTheme = AppTheme(
+final AppTheme bubblegumTheme = AppTheme(
   themeData: ThemeData(
-    primarySwatch: Colors.blue,
+    primarySwatch: Colors.pink,
     brightness: Brightness.light,
     scaffoldBackgroundColor:
         lightBackgroundColor, // Use shared light background
   ),
-  primary: Colors.blue,
-  secondary: Colors.lightBlueAccent,
+  primary: Colors.pink,
+  secondary: Colors.pinkAccent,
   primaryText: Colors.black87,
   secondaryText: Colors.black54,
 );
@@ -170,14 +170,14 @@ final AppTheme darkRoyalTheme = AppTheme(
   secondaryText: Colors.white70,
 );
 
-final AppTheme darkOceanTheme = AppTheme(
+final AppTheme darkbubblegumTheme = AppTheme(
   themeData: ThemeData(
-    primarySwatch: Colors.blue,
+    primarySwatch: Colors.pink,
     brightness: Brightness.dark,
     scaffoldBackgroundColor: darkBackgroundColor, // Use shared dark background
   ),
-  primary: Colors.blue,
-  secondary: Colors.lightBlueAccent,
+  primary: Colors.pink,
+  secondary: Colors.pinkAccent,
   primaryText: Colors.white,
   secondaryText: Colors.white70,
 );

@@ -5,12 +5,9 @@ import 'package:prioritize_it/models/task.dart';
 import 'package:prioritize_it/providers/auth_provider.dart';
 import 'package:prioritize_it/providers/task_provider.dart';
 import 'package:prioritize_it/providers/user_provider.dart';
-import 'package:prioritize_it/providers/theme_provider.dart';
-
 import 'package:prioritize_it/screens/google_map_screen.dart';
 import 'package:prioritize_it/services/notification_service.dart';
 import 'package:prioritize_it/utils/app_constants.dart';
-import 'package:prioritize_it/utils/themes.dart';
 import 'package:prioritize_it/widgets/buttons/styeld_elevated_button.dart';
 import 'package:prioritize_it/widgets/buttons/styled_text_button.dart';
 import 'package:prioritize_it/widgets/styled_app_bar.dart';
@@ -209,7 +206,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   @override
   Widget build(BuildContext context) {
     final isPastTask = _isPastTask();
-    AppTheme currentTheme = Provider.of<ThemeProvider>(context).currentTheme;
 
     return Scaffold(
       appBar: StyledAppBar(

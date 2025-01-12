@@ -13,8 +13,7 @@ class ThemesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context);
-    final userPoints = userProvider.user?.points ?? 0;
+    //final userProvider = Provider.of<UserProvider>(context);
 
     return BaseLayout(
         title: 'Themes',
@@ -31,7 +30,7 @@ class ThemesScreen extends StatelessWidget {
             _buildThemeItem(
                 context, ThemeName.royal, royalTheme, 200),
             _buildThemeItem(
-                context, ThemeName.ocean, oceanTheme, 300),
+                context, ThemeName.pink, bubblegumTheme, 300),
             _buildThemeItem(
                 context, ThemeName.sunset, sunsetTheme, 350),
             // Add more themes here
