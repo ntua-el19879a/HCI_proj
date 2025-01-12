@@ -9,6 +9,7 @@ import 'package:prioritize_it/providers/theme_provider.dart';
 import 'package:prioritize_it/providers/user_provider.dart';
 import 'package:prioritize_it/services/audio_service.dart';
 import 'package:prioritize_it/services/notification_service.dart';
+import 'package:prioritize_it/utils/global_settings.dart';
 import 'package:prioritize_it/utils/themes.dart';
 import 'package:provider/provider.dart';
 
@@ -16,7 +17,7 @@ class TaskItem extends StatelessWidget {
   final Task task;
   final VoidCallback? onEdit;
 
-  const TaskItem({Key? key, required this.task, this.onEdit}) : super(key: key);
+  const TaskItem({super.key, required this.task, this.onEdit});
 
   @override
   Widget build(BuildContext context) {
@@ -42,12 +43,16 @@ class TaskItem extends StatelessWidget {
                   await Provider.of<TaskProvider>(context, listen: false)
                       .toggleTaskCompletion(task.id!, task.userId, task.date!);
                   if (newValue) {
-                    AudioService.playCompletionSound();
+                    if (GlobalSettings.soundEffects) {
+                      AudioService.playCompletionSound();
+                    }
                     await Provider.of<UserProvider>(context, listen: false)
                         .handleTaskCompletion(30);
-                    NotificationService.showInstantNotification(
-                        "Task completed",
-                        '${task.title} was successfully completed');
+                    if (GlobalSettings.showNotifications) {
+                      NotificationService.showInstantNotification(
+                          "Task completed",
+                          '${task.title} was successfully completed');
+                    }
                   } else {
                     await Provider.of<UserProvider>(context, listen: false)
                         .handleTaskUncompletion();
@@ -84,7 +89,9 @@ class TaskItem extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.delete),
             onPressed: () {
-              AudioService.playDeletionSound();
+              if (GlobalSettings.soundEffects) {
+                AudioService.playDeletionSound();
+              }
               HapticFeedback.lightImpact();
               Provider.of<TaskProvider>(context, listen: false)
                   .deleteTask(task.id!, task.userId, task.date!);

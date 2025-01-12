@@ -1,27 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:prioritize_it/utils/global_settings.dart';
 import 'package:prioritize_it/utils/theme_mode_type.dart';
 import 'package:prioritize_it/utils/theme_name.dart';
 import 'package:prioritize_it/utils/themes.dart';
 
 class ThemeProvider extends ChangeNotifier {
-  ThemeModeType mode;
   AppTheme _currentTheme;
   ThemeName themeName;
 
   ThemeProvider({
-    required ThemeModeType initialMode,
     required AppTheme initialTheme,
     required ThemeName initialName,
-  })  : mode = initialMode,
-        themeName = initialName,
+  })  : themeName = initialName,
         _currentTheme = initialTheme;
 
   AppTheme get currentTheme => _currentTheme;
-
-  void switchMode(ThemeModeType newMode) {
-    mode = newMode;
-    switchTheme(themeName);
-  }
 
   void _swithToDarkTheme(ThemeName newThemeName) {
     if (newThemeName == ThemeName.blue) {
@@ -73,7 +66,7 @@ class ThemeProvider extends ChangeNotifier {
 
   void switchTheme(ThemeName newThemeName) {
     themeName = newThemeName;
-    if (mode == ThemeModeType.dark) {
+    if (GlobalSettings.themeModeType == ThemeModeType.dark) {
       _swithToDarkTheme(newThemeName);
     } else {
       _switchToLightTheme(newThemeName);
