@@ -32,7 +32,7 @@ class CustomAuthProvider with ChangeNotifier {
       User? user = await _databaseService.getUserByUid(fbUser.uid);
       if (user != null) {
         _currentUserId = user.id;
-        getUser();
+        await getUser();
       }
     }
   }
@@ -54,7 +54,7 @@ class CustomAuthProvider with ChangeNotifier {
             unlockedThemes: defualtUnlockedThemes);
         User user = await _databaseService.insertUser(newUser);
         _currentUserId = user.id;
-        getUser();
+        await getUser();
       }
     } catch (e) {
       rethrow;
@@ -72,7 +72,7 @@ class CustomAuthProvider with ChangeNotifier {
         User? user = await _databaseService.getUserByUid(fbUser.uid);
         if (user != null) {
           _currentUserId = user.id;
-          getUser();
+          await getUser();
         }
       }
     } catch (e) {

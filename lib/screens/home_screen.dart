@@ -35,13 +35,13 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _selectedDate = widget.selectedDate ?? DateTime.now();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadTasksForSelectedDate();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _loadTasksForSelectedDate();
     });
   }
 
   @override
-  void didChangeDependencies() async {
+  void didChangeDependencies() {
     super.didChangeDependencies();
 
     final themeProvider = Provider.of<ThemeProvider>(context);

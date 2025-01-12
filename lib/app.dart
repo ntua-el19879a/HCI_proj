@@ -55,13 +55,19 @@ class AuthWrapper extends StatelessWidget {
           return Center(child: Text('Something went wrong!'));
         }
 
+        // Use a Consumer to listen to authProvider updates
         return Consumer<CustomAuthProvider>(
           builder: (context, provider, _) {
             if (provider.currentUserId != null) {
-              return HomeScreen();
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                Navigator.pushReplacementNamed(context, '/home');
+              });
             } else {
-              return AuthScreen();
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                Navigator.pushReplacementNamed(context, '/login');
+              });
             }
+            return Container(); // To avoid an empty screen, you can show a loading indicator or a simple UI.
           },
         );
       },

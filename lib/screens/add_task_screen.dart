@@ -98,15 +98,20 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
   void _submitData() async {
     if (_formKey.currentState!.validate()) {
-      DateTime? combinedDateTime = _selectedDate;
-      if (_selectedTime != null && _selectedDate != null) {
+      DateTime? combinedDateTime;
+      if (_selectedDate != null) {
         combinedDateTime = DateTime(
           _selectedDate!.year,
           _selectedDate!.month,
           _selectedDate!.day,
-          _selectedTime!.hour,
-          _selectedTime!.minute,
         );
+
+        if (_selectedTime != null) {
+          combinedDateTime = combinedDateTime.add(Duration(
+            hours: _selectedTime!.hour,
+            minutes: _selectedTime!.minute,
+          ));
+        }
       }
 
       if (_selectedLocation != null && _selectedAddress == null) {
@@ -124,16 +129,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           address: _selectedAddress,
         );
 
-        // Check for duplicate task names
         final taskProvider = Provider.of<TaskProvider>(context, listen: false);
-        final taskExists = await taskProvider.addTask(newTask);
-        if (!taskExists) {
-          _showErrorDialog('Task Name Already Exists',
-              'A task with this name already exists. Please choose a different name.');
-          return;
-        }
 
-        // Add the task if name is unique
         taskProvider.addTask(newTask);
         Provider.of<UserProvider>(context, listen: false).handleTaskAdded();
         try {
