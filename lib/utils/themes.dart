@@ -112,9 +112,6 @@ final AppTheme royalTheme = AppTheme(
     brightness: Brightness.light,
     scaffoldBackgroundColor:
         lightBackgroundColor, // Use shared light background
-    textTheme: TextTheme(
-      bodyLarge: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
-    ),
   ),
   primary: Colors.deepPurple,
   secondary: Colors.deepPurpleAccent,
@@ -128,9 +125,6 @@ final AppTheme oceanTheme = AppTheme(
     brightness: Brightness.light,
     scaffoldBackgroundColor:
         lightBackgroundColor, // Use shared light background
-    textTheme: TextTheme(
-      bodyLarge: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
-    ),
   ),
   primary: Colors.indigo,
   secondary: Colors.indigoAccent,
@@ -144,9 +138,6 @@ final AppTheme sunsetTheme = AppTheme(
     brightness: Brightness.light,
     scaffoldBackgroundColor:
         lightBackgroundColor, // Use shared light background
-    textTheme: TextTheme(
-      bodyLarge: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
-    ),
   ),
   primary: Colors.orange,
   secondary: Colors.deepOrange,
@@ -158,10 +149,7 @@ final AppTheme darkSpaceTheme = AppTheme(
   themeData: ThemeData(
     scaffoldBackgroundColor: darkBackgroundColor, // Use shared dark background
     primarySwatch: Colors.grey,
-    textTheme: TextTheme(
-      bodyLarge: TextStyle(color: Colors.white),
-      bodyMedium: TextStyle(color: Colors.white70),
-    ),
+    brightness: Brightness.dark,
   ),
   primary: Colors.grey,
   secondary: Colors.white,
@@ -174,9 +162,6 @@ final AppTheme darkRoyalTheme = AppTheme(
     primarySwatch: Colors.deepPurple,
     brightness: Brightness.dark,
     scaffoldBackgroundColor: darkBackgroundColor, // Use shared dark background
-    textTheme: TextTheme(
-      bodyLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-    ),
   ),
   primary: Colors.deepPurple,
   secondary: Colors.deepPurpleAccent,
@@ -189,9 +174,6 @@ final AppTheme darkOceanTheme = AppTheme(
     primarySwatch: Colors.blue,
     brightness: Brightness.dark,
     scaffoldBackgroundColor: darkBackgroundColor, // Use shared dark background
-    textTheme: TextTheme(
-      bodyLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-    ),
   ),
   primary: Colors.blue,
   secondary: Colors.lightBlueAccent,
@@ -204,9 +186,6 @@ final AppTheme darkSunsetTheme = AppTheme(
     primarySwatch: Colors.orange,
     brightness: Brightness.dark,
     scaffoldBackgroundColor: darkBackgroundColor, // Use shared dark background
-    textTheme: TextTheme(
-      bodyLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-    ),
   ),
   primary: Colors.orange,
   secondary: Colors.deepOrange,

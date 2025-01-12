@@ -12,7 +12,7 @@ class NotificationService {
 
   static Future<void> init() async {
     const AndroidInitializationSettings androidInitializationSettings =
-        AndroidInitializationSettings("@mipmap/ic_launcher");
+        AndroidInitializationSettings('ic_stat_app_icon');
     const DarwinInitializationSettings iOSInitializationSettings =
         DarwinInitializationSettings();
 
@@ -40,6 +40,7 @@ class NotificationService {
           'Instant Notifications',
           importance: Importance.max,
           priority: Priority.high,
+          icon: 'ic_stat_app_icon',
         ),
         iOS: DarwinNotificationDetails());
 
