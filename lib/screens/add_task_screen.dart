@@ -206,7 +206,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         );
       },
       initialDate: initialDate,
-      firstDate: DateTime(2000),
+      firstDate: DateTime.now(),
       lastDate: DateTime(2100),
     ).then((pickedDate) {
       if (pickedDate == null) return;
