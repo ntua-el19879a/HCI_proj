@@ -32,8 +32,8 @@ class ThemeProvider extends ChangeNotifier {
     if (newThemeName == ThemeName.royal) {
       _currentTheme = darkRoyalTheme;
     }
-    if (newThemeName == ThemeName.ocean) {
-      _currentTheme = darkOceanTheme;
+    if (newThemeName == ThemeName.pink) {
+      _currentTheme = darkbubblegumTheme;
     }
     if (newThemeName == ThemeName.sunset) {
       _currentTheme = darkSunsetTheme;
@@ -56,8 +56,8 @@ class ThemeProvider extends ChangeNotifier {
     if (newThemeName == ThemeName.royal) {
       _currentTheme = royalTheme;
     }
-    if (newThemeName == ThemeName.ocean) {
-      _currentTheme = oceanTheme;
+    if (newThemeName == ThemeName.pink) {
+      _currentTheme = bubblegumTheme;
     }
     if (newThemeName == ThemeName.sunset) {
       _currentTheme = sunsetTheme;

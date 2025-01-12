@@ -149,4 +149,19 @@ class DatabaseService {
       rethrow;
     }
   }
+
+  Future<bool> checkTaskExists(String userId, String taskTitle) async {
+    try {
+      final querySnapshot = await _database
+          .collection(_tasksCollection)
+          .where('userId', isEqualTo: userId)
+          .where('title', isEqualTo: taskTitle)
+          .limit(1)
+          .get();
+
+      return querySnapshot.docs.isNotEmpty;
+    } catch (e) {
+      debugPrint("Error checking task existence: $e");
+      rethrow;
+    }
 }

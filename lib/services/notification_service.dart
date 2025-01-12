@@ -57,10 +57,8 @@ class NotificationService {
       onDidReceiveBackgroundNotificationResponse: onDidReceiveNotification,
     );
 
-    await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.requestPermission();
+    await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+        IOSFlutterLocalNotificationsPlugin>;
   }
 
   static Future<void> showInstantNotification(String title, String body) async {
@@ -128,10 +126,10 @@ class NotificationService {
       interruptionLevel: InterruptionLevel.critical,
     );
 
-    const NotificationDetails notificationDetails =
-        NotificationDetails(android: androidNotificationDetails);
     // const NotificationDetails notificationDetails =
-    // NotificationDetails(iOS: iosNotifications);
+    // NotificationDetails(android: androidNotificationDetails);
+    const NotificationDetails notificationDetails =
+        NotificationDetails(iOS: iosNotifications);
 
     await flutterLocalNotificationsPlugin
         .show(id, title, body, notificationDetails, payload: payload);
