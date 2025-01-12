@@ -99,14 +99,20 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   void _submitData() async {
     if (_formKey.currentState!.validate()) {
       DateTime? combinedDateTime = _selectedDate;
-      if (_selectedTime != null && _selectedDate != null) {
+      if (_selectedDate != null) {
         combinedDateTime = DateTime(
           _selectedDate!.year,
           _selectedDate!.month,
           _selectedDate!.day,
-          _selectedTime!.hour,
-          _selectedTime!.minute,
         );
+
+        // Only combine with time if a time is selected
+        if (_selectedTime != null) {
+          combinedDateTime = combinedDateTime.add(Duration(
+            hours: _selectedTime!.hour,
+            minutes: _selectedTime!.minute,
+          ));
+        }
       }
 
       if (_selectedLocation != null && _selectedAddress == null) {
@@ -209,7 +215,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         );
       },
       initialDate: initialDate,
-      firstDate: DateTime(2000),
+      firstDate: DateTime.now(),
       lastDate: DateTime(2100),
     ).then((pickedDate) {
       if (pickedDate == null) return;
