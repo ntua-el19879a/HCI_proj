@@ -54,7 +54,7 @@ class UserProvider with ChangeNotifier {
   }
 
   Future<void> handleTaskUncompletion() async {
-    if (_user != null && _user!.completedTasks > 0) {
+    if (_user != null ) {
       _user!.deductPoints(30);
       _user!.decrementCompletedTasks();
       await dbService.updateUser(_user!);

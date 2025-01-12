@@ -16,7 +16,6 @@ class NotificationService {
 
     // iOS initialization (add settings if targeting iOS)
     final DarwinInitializationSettings initializationSettingsIOS = DarwinInitializationSettings(
-      // ...
       notificationCategories: [
         DarwinNotificationCategory(
           'demoCategory',
@@ -58,8 +57,7 @@ class NotificationService {
 
     await flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>()
-        ?.requestPermission();
+        IOSFlutterLocalNotificationsPlugin>;
   }
 
   static Future<void> showInstantNotification(String title, String body) async {
@@ -71,7 +69,8 @@ class NotificationService {
           priority: Priority.high,
           icon: 'ic_stat_app_icon',
         ),
-        iOS: DarwinNotificationDetails());
+        iOS: DarwinNotificationDetails(
+        ));
 
     await flutterLocalNotificationsPlugin.show(
       0,
@@ -124,14 +123,13 @@ class NotificationService {
         ticker: 'ticker');
     const DarwinNotificationDetails iosNotifications =
     DarwinNotificationDetails(
-      presentAlert: true,
-      interruptionLevel: InterruptionLevel.critical,
+
     );
 
-    const NotificationDetails notificationDetails =
-    NotificationDetails(android: androidNotificationDetails);
     // const NotificationDetails notificationDetails =
-    // NotificationDetails(iOS: iosNotifications);
+    // NotificationDetails(android: androidNotificationDetails);
+    const NotificationDetails notificationDetails =
+    NotificationDetails(iOS: iosNotifications);
 
     await flutterLocalNotificationsPlugin.show(id, title, body, notificationDetails,
         payload: payload);

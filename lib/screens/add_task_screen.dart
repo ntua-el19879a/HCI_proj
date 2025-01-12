@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:geocoding/geocoding.dart';
+import 'package:geocoding/geocoding.dart'; // For reverse geocoding
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:prioritize_it/models/task.dart';
 import 'package:prioritize_it/providers/auth_provider.dart';
@@ -121,7 +121,16 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           address: _selectedAddress,
         );
 
-        Provider.of<TaskProvider>(context, listen: false).addTask(newTask);
+        // Check for duplicate task names
+        final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+        final taskExists = await taskProvider.addTask(newTask);
+        if (!taskExists) {
+          _showErrorDialog('Task Name Already Exists', 'A task with this name already exists. Please choose a different name.');
+          return;
+        }
+
+        // Add the task if name is unique
+        taskProvider.addTask(newTask);
         Provider.of<UserProvider>(context, listen: false).handleTaskAdded();
         try {
           NotificationService.showNotification(
@@ -150,6 +159,24 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
       Navigator.of(context).pop();
     }
+  }
+
+  void _showErrorDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            child: Text('Okay'),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+          )
+        ],
+      ),
+    );
   }
 
   void _presentDatePicker() {
